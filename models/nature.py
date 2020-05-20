@@ -2,6 +2,7 @@ import torch
 
 from rlpyt.utils.tensor import infer_leading_dims, restore_leading_dims
 from models.conv2d import Conv2dHeadModel
+import torch.nn.functional as F
 import numpy as np
 
 class NatureCNNModel(torch.nn.Module):
@@ -38,8 +39,8 @@ class NatureCNNModel(torch.nn.Module):
             
     def forward(self, image, prev_action, prev_reward):
         #input normalization, cast to float then grayscale it
-        x = image.type(torch.float)
-        x = x.mul_(1. / 255)
+        img = image.type(torch.float)
+        img = img.mul_(1. / 255)
         
         lead_dim, T, B, img_shape = infer_leading_dims(img, 3)
         

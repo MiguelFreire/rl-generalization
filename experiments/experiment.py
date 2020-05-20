@@ -33,7 +33,7 @@ class Experiment:
             "learning_rate": 5e-4,
             "workers": 8,
             "envs_per_worker": 64,
-            "total_timesteps": 25_000_000,
+            "total_timesteps": 30_000_000,
             "dropout": 0.0,
             "batchNorm": False,
             "num_levels": 500,
@@ -49,10 +49,13 @@ class Experiment:
                       batch_T=256,
                       batch_B=8,
                       max_decorrelation_steps=0)
+        
+        optim_args = dict(weight_decay=config["l2_penalty"]) if "l2_penalty" in config else None
+
         algo = PPO(discount=config["discount"], entropy_loss_coeff=config["entropy_bonus"],
             gae_lambda=config["lambda"], minibatches=config["minibatches_per_epoch"],
             epochs=config["epochs_per_rollout"], ratio_clip=config["ppo_clip"],
-            learning_rate=config["learning_rate"], normalize_advantage=True)
+            learning_rate=config["learning_rate"], normalize_advantage=True, optim_kwargs=optim_args)
         agent = OriginalNatureAgent(model_kwargs={"batchNorm": config["batchNorm"], "dropout": config["dropout"]})
         
         affinity = dict(cuda_idx=0, workers_cpus=list(range(config["workers"])))
@@ -61,15 +64,14 @@ class Experiment:
                   algo=algo,
                   agent=agent,
                   sampler=sampler,
-                  n_steps=25e6,
+                  n_steps=30e6,
                   log_interval_steps=500,
                   affinity=affinity,
                   seed=42069)
         log_dir="./logs"
         run_ID=1
         name=config["name"]
-        wandb.init(config=config, sync_tensorboard=True)
-        with logger_context(log_dir, run_ID, name, config, use_summary_writer=False):
+        with logger_context(log_dir, run_ID, name, config, use_summary_writer=True):
             runner.train()
         torch.save(agent.state_dict(), "./" + name + ".pt")
         wandb.save("./" + name + ".pt")

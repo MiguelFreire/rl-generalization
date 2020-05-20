@@ -42,7 +42,7 @@ class Conv2dModel(torch.nn.Module):
             sequence.extend([conv_layer, nonlinearity()])
             if batchNorm:
               sequence.append(torch.nn.BatchNorm2d(conv_layer.out_channels))
-            if dropout > 1:
+            if dropout > 0.0:
               sequence.append(torch.nn.Dropout2d(dropout))
             if maxp_stride > 1:
                 sequence.append(torch.nn.MaxPool2d(maxp_stride))  # No padding.
