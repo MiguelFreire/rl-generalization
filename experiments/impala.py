@@ -19,7 +19,7 @@ def make_env(*args, **kwargs):
     env = gym.make("procgen:procgen-coinrun-v0", num_levels=num_levels, distribution_mode=difficulty, rand_seed=seed, paint_vel_info=paint_vel_info)
     return ProcgenWrapper(env)
 
-class ImpalaExperiment:
+class ExperimentImpala:
     def __init__(self, name="CoinRunImpala-Default", num_levels=500, learning_rate=5e-4, in_channels=[3,16,32], out_channels=[16,32,32]):
       self.name = name
       self.learning_rate = learning_rate
