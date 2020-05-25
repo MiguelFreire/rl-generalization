@@ -2,19 +2,14 @@ from experiments.base import BaseExperimentNature
 import wandb
 import os
 import sys
+import math
 
 if __name__ == "__main__":
+
   experiments = [
-    BaseExperimentNature(name="CoinRunNatureLevels-L2-0.1",num_levels=500, l2_penalty=0.1E-4),
-    BaseExperimentNature(name="CoinRunNatureLevels-L2-0.25",num_levels=500, l2_penalty=0.25E-4),
-    BaseExperimentNature(name="CoinRunNatureLevels-L2-0.5",num_levels=500, l2_penalty=0.5E-4),
-    BaseExperimentNature(name="CoinRunNatureLevels-L2-1.0",num_levels=500, l2_penalty=1E-4),
-    BaseExperimentNature(name="CoinRunNatureLevels-L2-2.5",num_levels=500, l2_penalty=2.5E-4),
-    BaseExperimentNature(name="CoinRunNatureLevels-entropy-0",num_levels=500, entropy_bonus=0),
-    BaseExperimentNature(name="CoinRunNatureLevels-entropy-0.02",num_levels=500, entropy_bonus=0.02),
-    BaseExperimentNature(name="CoinRunNatureLevels-entropy-0.05",num_levels=500, entropy_bonus=0.05),
-    BaseExperimentNature(name="CoinRunNatureLevels-entropy-0.07",num_levels=500, entropy_bonus=0.07),
-    BaseExperimentNature(name="CoinRunNatureLevels-entropy-0.1",num_levels=500, entropy_bonus=0.10),
+    BaseExperimentImpala(name="CoinRunImpala-16", num_levels=500, in_channels=[3], out_channels=[16], learning_rate=5e-4),
+    BaseExperimentImpala(name="CoinRunImpala-16-32", num_levels=500, in_channels=[3,16], out_channels=[16,32], learning_rate=(1/math.sqrt(3))*5e-4),
+    BaseExperimentImpala(name="CoinRunImpala-16-32-32", num_levels=500, in_channels=[3,16,32], out_channels=[16,32,32], learning_rate=(1/math.sqrt(5))*5e-4),
   ]
 
   for experiment in experiments:

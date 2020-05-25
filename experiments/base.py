@@ -28,4 +28,4 @@ class BaseExperimentNature(Experiment):
             "num_levels": self.num_levels,
             "model": "nature"
         }
-    
+

@@ -3,7 +3,7 @@ import torch
 from rlpyt.samplers.parallel.cpu.sampler import CpuSampler
 from rlpyt.runners.minibatch_rl import MinibatchRl
 from rlpyt.utils.logging.context import logger_context
-from agents.nature import OriginalNatureAgent
+from agents.impala import ImpalaAgent
 from rlpyt.algos.pg.ppo import PPO
 from gym import Wrapper
 from environments.procgen import ProcgenWrapper
@@ -19,10 +19,17 @@ def make_env(*args, **kwargs):
     env = gym.make("procgen:procgen-coinrun-v0", num_levels=num_levels, distribution_mode=difficulty, rand_seed=seed, paint_vel_info=paint_vel_info)
     return ProcgenWrapper(env)
 
-class Experiment:
+class ImpalaExperiment:
+    def __init__(self, name="CoinRunImpala-Default", num_levels=500, learning_rate=5e-4, in_channels=[3,16,32], out_channels=[16,32,32]):
+      self.name = name
+      self.learning_rate = learning_rate
+      self.in_channels = in_channels
+      self.out_channels = out_channels
+      self.num_levels = num_levels
+    
     def getConfig(self):
         return {
-            "name": "CoinRunNature500-default",
+            "name": self.name,
             "discount": 0.999,
             "lambda": 0.95,
             "timesteps_per_rollout": 256,
@@ -30,14 +37,17 @@ class Experiment:
             "minibatches_per_epoch": 8,
             "entropy_bonus": 0.01,
             "ppo_clip": 0.2,
-            "learning_rate": 5e-4,
+            "learning_rate": self.learning_rate,
             "workers": 8,
             "envs_per_worker": 64,
-            "total_timesteps": 30_000_000,
+            "total_timesteps": 25_000_000,
             "dropout": 0.0,
             "batchNorm": False,
-            "num_levels": 500,
-            "model": "nature"
+            "num_levels": self.num_levels,
+            "model": "impala"
+            "out_channels": self.out_channels,
+            "in_channels": self.in_channels,
+            "hidden_size": 512,
         }
     
 
@@ -56,7 +66,7 @@ class Experiment:
             gae_lambda=config["lambda"], minibatches=config["minibatches_per_epoch"],
             epochs=config["epochs_per_rollout"], ratio_clip=config["ppo_clip"],
             learning_rate=config["learning_rate"], normalize_advantage=True, optim_kwargs=optim_args)
-        agent = OriginalNatureAgent(model_kwargs={"batchNorm": config["batchNorm"], "dropout": config["dropout"]})
+        agent = ImpalaAgent(model_kwargs={"in_channels": config["in_channels"], "out_channels": config["out_channels"], "hidden_size": config["hidden_size"]})
         
         affinity = dict(cuda_idx=0, workers_cpus=list(range(config["workers"])))
 
@@ -69,8 +79,8 @@ class Experiment:
                   affinity=affinity,
                   seed=42069)
         log_dir="./logs"
-        run_ID=1
         name=config["name"]
+        run_ID=name
         with logger_context(log_dir, run_ID, name, config, use_summary_writer=True):
             runner.train()
         torch.save(agent.state_dict(), "./" + name + ".pt")
