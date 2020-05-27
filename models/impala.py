@@ -104,7 +104,7 @@ class ImpalaModel(torch.nn.Module):
     def __init__(
             self, 
             image_shape,
-            output_size
+            output_size,
             in_channels, 
             out_channels,
             hidden_size

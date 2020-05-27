@@ -65,7 +65,6 @@ class ProcgenWrapper(GymEnvWrapper):
       
 def make_env(*args, **kwargs):
     num_levels = kwargs['num_levels']
-    print(num_levels)
     difficulty="easy"
     paint_vel_info=True
     seed=42069

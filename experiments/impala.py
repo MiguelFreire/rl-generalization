@@ -44,7 +44,7 @@ class ExperimentImpala:
             "dropout": 0.0,
             "batchNorm": False,
             "num_levels": self.num_levels,
-            "model": "impala"
+            "model": "impala",
             "out_channels": self.out_channels,
             "in_channels": self.in_channels,
             "hidden_size": 512,
