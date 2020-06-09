@@ -14,7 +14,8 @@ class NatureCNNModel(torch.nn.Module):
         super().__init__()
 
         self.augment_obs = augment_obs  
-
+        self.transform = None
+        
         self.conv = Conv2dHeadModel(
             image_shape=image_shape,
             channels=[32,64,64],
