@@ -50,6 +50,7 @@ class NatureCNNModel(torch.nn.Module):
         
         lead_dim, T, B, img_shape = infer_leading_dims(img, 3)
         
+        img = img.view(T * B, *img_shape)
         if self.augment_obs != None:
             b, c, h, w = img.shape
             mask_vbox = torch.zeros(size=img.shape, dtype=torch.bool)
@@ -75,7 +76,7 @@ class NatureCNNModel(torch.nn.Module):
             img = fixed
 
 
-        fc_out = self.conv(img.view(T * B, *img_shape))
+        fc_out = self.conv(img)
         pi = F.softmax(self.pi(fc_out), dim=-1)
         v = self.value(fc_out).squeeze(-1)
         # Restore leading dimensions: [T,B], [B], or [], as input.
