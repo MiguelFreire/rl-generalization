@@ -66,7 +66,7 @@ class NatureCNNModel(torch.nn.Module):
             obs_without_vbox = torch.where(mask_vbox, torch.zeros_like(img), img)
             
             if self.augment_obs == 'cutout':
-                augmented = cutout(obs_without_vbox)
+                augmented = random_cutout_color(obs_without_vbox)
             elif self.augment_obs == 'jitter':
                 if self.transform is None:
                     self.transform = ColorJitterLayer(b)
