@@ -28,8 +28,9 @@ def random_convolution(imgs):
     '''
     
     # initialize random covolution
-    rand_conv = torch.nn.Conv2d(3, 3, kernel_size=3, bias=False, padding=1, device=imgs.device)
+    rand_conv = torch.nn.Conv2d(3, 3, kernel_size=3, bias=False, padding=1)
     rand_conv.weight.requires_grad = False
     torch.nn.init.xavier_normal_(rand_conv.weight.data)
-
+    if imgs.is_cuda:
+        rand_conv.cuda()
     return rand_conv(imgs)
