@@ -15,7 +15,7 @@ class NatureCNNModel(torch.nn.Module):
 
         self.augment_obs = augment_obs  
         self.transform = None
-        
+
         self.conv = Conv2dHeadModel(
             image_shape=image_shape,
             channels=[32,64,64],
@@ -63,6 +63,8 @@ class NatureCNNModel(torch.nn.Module):
             ##create velocity mask -> False where velocity box is, True rest of the screen
             vmask = torch.ones((b, c, mh, mw), dtype=torch.bool)
             mask_vbox[:,:,:mh,:mw] = vmask
+            print(mask_vbox.device)
+            print(img.device)
             obs_without_vbox = torch.where(mask_vbox, torch.zeros_like(img), img)
             
             if self.augment_obs == 'cutout':
