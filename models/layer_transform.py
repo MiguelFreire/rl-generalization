@@ -102,8 +102,8 @@ class ColorJitterLayer(nn.Module):
         self.prob = p_rand
         self.batch_size = batch_size
         self.stack_size = stack_size
-        self._device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-#         self._device = torch.device('cpu')
+        #self._device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self._device = torch.device('cpu')
     
         # random paramters
         factor_contrast = torch.empty(self.batch_size, device=self._device).uniform_(*self.contrast)
