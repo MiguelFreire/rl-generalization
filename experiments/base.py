@@ -27,7 +27,7 @@ class BaseExperimentNature(Experiment):
             "dropout": self.dropout,
             "batchNorm": self.batchNorm,
             "num_levels": self.num_levels,
-            "model": "nature"
+            "model": "nature",
             "augment": self.augment_obs
         }
 
