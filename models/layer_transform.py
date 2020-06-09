@@ -83,7 +83,7 @@ def hsv2rgb(hsv):
 
 class ColorJitterLayer(nn.Module):
     def __init__(self, 
-                 batch_size
+                 batch_size,
                  brightness=0.4,                              
                  contrast=0.4,
                  saturation=0.4, 
