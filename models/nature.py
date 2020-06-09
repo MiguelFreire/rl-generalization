@@ -55,16 +55,14 @@ class NatureCNNModel(torch.nn.Module):
         img = img.view(T * B, *img_shape)
         if self.augment_obs != None:
             b, c, h, w = img.shape
-            mask_vbox = torch.zeros(size=img.shape, dtype=torch.bool)
+            mask_vbox = torch.zeros(size=img.shape, dtype=torch.bool, device=img.device)
 
             mh = math.ceil(h * 0.20)
             #2 squares side by side
             mw = mh * 2
             ##create velocity mask -> False where velocity box is, True rest of the screen
-            vmask = torch.ones((b, c, mh, mw), dtype=torch.bool)
+            vmask = torch.ones((b, c, mh, mw), dtype=torch.bool, device=img.device)
             mask_vbox[:,:,:mh,:mw] = vmask
-            print(mask_vbox.device)
-            print(img.device)
             obs_without_vbox = torch.where(mask_vbox, torch.zeros_like(img), img)
             
             if self.augment_obs == 'cutout':
