@@ -239,7 +239,7 @@ class ColorJitterLayer(nn.Module):
         # batch size
         random_inds = np.random.choice(
             [True, False], len(inputs), p=[self.prob, 1 - self.prob])
-        inds = torch.tensor(random_inds).to(self._device)
+        inds = torch.tensor(random_inds)
         if random_inds.sum() > 0:
             inputs[inds] = self.transform(inputs[inds])
         return inputs
