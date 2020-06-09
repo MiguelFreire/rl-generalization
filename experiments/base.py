@@ -28,6 +28,6 @@ class BaseExperimentNature(Experiment):
             "batchNorm": self.batchNorm,
             "num_levels": self.num_levels,
             "model": "nature",
-            "augment": self.augment_obs
+            "augment_obs": self.augment_obs
         }
 

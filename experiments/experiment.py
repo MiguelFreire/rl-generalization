@@ -37,7 +37,8 @@ class Experiment:
             "dropout": 0.0,
             "batchNorm": False,
             "num_levels": 500,
-            "model": "nature"
+            "model": "nature",
+            "augment_obs": ""
         }
     
 
