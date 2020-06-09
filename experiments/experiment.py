@@ -56,7 +56,7 @@ class Experiment:
             gae_lambda=config["lambda"], minibatches=config["minibatches_per_epoch"],
             epochs=config["epochs_per_rollout"], ratio_clip=config["ppo_clip"],
             learning_rate=config["learning_rate"], normalize_advantage=True, optim_kwargs=optim_args)
-        agent = OriginalNatureAgent(model_kwargs={"batchNorm": config["batchNorm"], "dropout": config["dropout"]})
+        agent = OriginalNatureAgent(model_kwargs={"batchNorm": config["batchNorm"], "dropout": config["dropout"], "augment_obs": config["augment_obs"]})
         
         affinity = dict(cuda_idx=0, workers_cpus=list(range(config["workers"])))
 

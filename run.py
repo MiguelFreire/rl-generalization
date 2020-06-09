@@ -7,12 +7,9 @@ import math
 if __name__ == "__main__":
 
   experiments = [
-    BaseExperimentNature(name="CoinRunDropout-0.2", num_levels=500, dropout=0.2),
-    BaseExperimentNature(name="CoinRunDropout-0.25", num_levels=500, dropout=0.25),
-    BaseExperimentNature(name="CoinRunL2-1.0", num_levels=500, l2_penalty=1e-4),
-    BaseExperimentNature(name="CoinRunL2-2.5", num_levels=500, l2_penalty=2.5e-4),
-    BaseExperimentNature(name="CoinRunEntropy-0.07", num_levels=500, entropy_bonus=0.07),
-    BaseExperimentNature(name="CoinRunEntropy-0.1", num_levels=500, entropy_bonus=0.1),
+    BaseExperimentNature(name="CoinRunColorJitter", num_levels=500, augment_obs='jitter'),
+    BaseExperimentNature(name="CoinRunRandomConv", num_levels=500, augment_obs='rand_conv'),
+    BaseExperimentNature(name="CoinRunCutout", num_levels=500, augment_obs='cutout'),
   ]
 
   for experiment in experiments:

@@ -1,13 +1,14 @@
 from experiments.experiment import Experiment
 
 class BaseExperimentNature(Experiment):
-    def __init__(self, name="CoinRunNatureLevels-default", num_levels=500, batchNorm=False, dropout=0.0, l2_penalty=0, entropy_bonus = 0.01):
+    def __init__(self, name="CoinRunNatureLevels-default", num_levels=500, batchNorm=False, dropout=0.0, l2_penalty=0, entropy_bonus = 0.01, augment_obs=None):
       self.num_levels = num_levels
       self.batchNorm = batchNorm
       self.dropout = dropout
       self.name = name
       self.l2_penalty = l2_penalty
       self.entropy_bonus = entropy_bonus
+      self.augment_obs = augment_obs
     def getConfig(self):
         return {
             "name": self.name,
@@ -27,5 +28,6 @@ class BaseExperimentNature(Experiment):
             "batchNorm": self.batchNorm,
             "num_levels": self.num_levels,
             "model": "nature"
+            "augment": self.augment_obs
         }
 

@@ -2,13 +2,18 @@ import torch
 
 from rlpyt.utils.tensor import infer_leading_dims, restore_leading_dims
 from models.conv2d import Conv2dHeadModel
+from models.cutout import random_cutout_color
+from models.layer_transform import ColorJitterLayer
+from models.rand_network import random_convolution
 import torch.nn.functional as F
 import numpy as np
 
 class NatureCNNModel(torch.nn.Module):
-    def __init__(self, image_shape, output_size, batchNorm=False, dropout=0.0):
+    def __init__(self, image_shape, output_size, batchNorm=False, dropout=0.0, augment_obs=None):
         super().__init__()
-    
+
+        self.augment_obs = augment_obs  
+
         self.conv = Conv2dHeadModel(
             image_shape=image_shape,
             channels=[32,64,64],
@@ -27,7 +32,8 @@ class NatureCNNModel(torch.nn.Module):
         self.value = torch.nn.Linear(self.conv.output_size, 1)
         #reset weights just like nature paper
         self.init_weights()
-        
+    
+    @torch.no_grad()    
     def init_weights(self):
         #orthogonal initialization with gain of sqrt(2)
         def weights_initializer(m):
@@ -44,6 +50,31 @@ class NatureCNNModel(torch.nn.Module):
         
         lead_dim, T, B, img_shape = infer_leading_dims(img, 3)
         
+        if self.augment_obs != None:
+            b, c, h, w = img.shape
+            mask_vbox = torch.zeros(size=img.shape, dtype=torch.bool)
+
+            mh = math.ceil(h * 0.20)
+            #2 squares side by side
+            mw = mh * 2
+            ##create velocity mask -> False where velocity box is, True rest of the screen
+            vmask = torch.ones((b, c, mh, mw), dtype=torch.bool)
+            mask_vbox[:,:,:mh,:mw] = vmask
+            obs_without_vbox = torch.where(mask_vbox, torch.zeros_like(img), img)
+            
+            if self.augment_obs == 'cutout':
+                augmented = cutout(obs_without_vbox)
+            elif self.augment_obs == 'jitter':
+                if self.transform is None:
+                    self.transform = ColorJitterLayer(b)
+                augmented = self.transform(obs_without_vbox)
+            elif self.augment_obs == 'rand_conv':
+                augmented = random_convolution(obs_without_vbox)
+
+            fixed = torch.where(mask_vbox, img, augmented)
+            img = fixed
+
+
         fc_out = self.conv(img.view(T * B, *img_shape))
         pi = F.softmax(self.pi(fc_out), dim=-1)
         v = self.value(fc_out).squeeze(-1)
