@@ -103,19 +103,18 @@ class ColorJitterLayer(nn.Module):
         self.batch_size = batch_size
         self.stack_size = stack_size
         #self._device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self._device = torch.device('cpu')
     
         # random paramters
-        factor_contrast = torch.empty(self.batch_size, device=self._device).uniform_(*self.contrast)
+        factor_contrast = torch.empty(self.batch_size).uniform_(*self.contrast)
         self.factor_contrast = factor_contrast.reshape(-1,1).repeat(1, self.stack_size).reshape(-1)
         
-        factor_hue = torch.empty(self.batch_size, device=self._device).uniform_(*self.hue)
+        factor_hue = torch.empty(self.batch_size).uniform_(*self.hue)
         self.factor_hue = factor_hue.reshape(-1,1).repeat(1, self.stack_size).reshape(-1)
         
-        factor_brightness = torch.empty(self.batch_size, device=self._device).uniform_(*self.brightness)
+        factor_brightness = torch.empty(self.batch_size).uniform_(*self.brightness)
         self.factor_brightness = factor_brightness.reshape(-1,1).repeat(1, self.stack_size).reshape(-1)
         
-        factor_saturate = torch.empty(self.batch_size, device=self._device).uniform_(*self.saturation)
+        factor_saturate = torch.empty(self.batch_size).uniform_(*self.saturation)
         self.factor_saturate = factor_saturate.reshape(-1,1).repeat(1, self.stack_size).reshape(-1)
         
 
@@ -206,7 +205,7 @@ class ColorJitterLayer(nn.Module):
     def do_augmentation(self, imgs):
         # batch size
         imgs = np.transpose(imgs, (0, 3, 2, 1))
-        inputs = torch.from_numpy(imgs).to(self._device).float()
+        inputs = torch.from_numpy(imgs).float()
         inputs = inputs / 255.0
         
         outputs = self.forward(inputs)
@@ -215,22 +214,22 @@ class ColorJitterLayer(nn.Module):
         return outputs
     
     def change_randomization_params(self, index_):
-        self.factor_contrast[index_] = torch.empty(1, device=self._device).uniform_(*self.contrast)
-        self.factor_hue[index_] = torch.empty(1, device=self._device).uniform_(*self.hue)
-        self.factor_brightness[index_] = torch.empty(1, device=self._device).uniform_(*self.brightness)
-        self.factor_saturate[index_] = torch.empty(1, device=self._device).uniform_(*self.saturation)
+        self.factor_contrast[index_] = torch.empty(1).uniform_(*self.contrast)
+        self.factor_hue[index_] = torch.empty(1).uniform_(*self.hue)
+        self.factor_brightness[index_] = torch.empty(1).uniform_(*self.brightness)
+        self.factor_saturate[index_] = torch.empty(1).uniform_(*self.saturation)
 
     def change_randomization_params_all(self):
-        factor_contrast = torch.empty(self.batch_size, device=self._device).uniform_(*self.contrast)
+        factor_contrast = torch.empty(self.batch_size).uniform_(*self.contrast)
         self.factor_contrast = factor_contrast.reshape(-1,1).repeat(1, self.stack_size).reshape(-1)
         
-        factor_hue = torch.empty(self.batch_size, device=self._device).uniform_(*self.hue)
+        factor_hue = torch.empty(self.batch_size).uniform_(*self.hue)
         self.factor_hue = factor_hue.reshape(-1,1).repeat(1, self.stack_size).reshape(-1)
         
-        factor_brightness = torch.empty(self.batch_size, device=self._device).uniform_(*self.brightness)
+        factor_brightness = torch.empty(self.batch_size).uniform_(*self.brightness)
         self.factor_brightness = factor_brightness.reshape(-1,1).repeat(1, self.stack_size).reshape(-1)
         
-        factor_saturate = torch.empty(self.batch_size, device=self._device).uniform_(*self.saturation)
+        factor_saturate = torch.empty(self.batch_size).uniform_(*self.saturation)
         self.factor_saturate = factor_saturate.reshape(-1,1).repeat(1, self.stack_size).reshape(-1)
         
     def print_parms(self):
