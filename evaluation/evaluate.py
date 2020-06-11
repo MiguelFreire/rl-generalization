@@ -2,9 +2,11 @@ import torch
 import os
 import wandb
 from agents.nature import OriginalNatureAgent
+from agents.impala import ImpalaAgent
 from environments.procgen import make_env
 from rlpyt.utils.prog_bar import ProgBarCounter
 import pandas
+import numpy as np
 
 def calculateWinRate(levels_outcome):
     wins = 0
@@ -69,16 +71,50 @@ def evaluate_in_testing(agent, num_levels=5000, start_level=400000, seed=42069):
     
     return calculateWinRate(levels)
 
-def evaluate_generalization(models_to_evaluate):
+def evaluate_generalization(models_to_evaluate, name, impala=False):
     data = []
+    wandb.init(name=name)
     for m in models_to_evaluate:
-        saved_params = torch.load(os.getcwd() + m['model_path'], map_location=torch.device('cpu'));
-        agent = OriginalNatureAgent(initial_model_state_dict=saved_params)
-        num_levels = m['num_levels']
-        print("Evaluating Training - " + str(num_levels) + "Levels")
-        train_winrate = evaluate_in_training(agent, num_levels)
-        print("Evaluating Testing - " + str(num_levels) + "Levels")
-        test_winrate = evaluate_in_testing(agent)
-        data.append([train_winrate, test_winrate])
+        print("Evaluation " + m['model_name'] + "\n")
+        saved_params = torch.load(os.getcwd() + m['model_path'])
+        
+        batchNorm = m['batchNorm'] if "batchNorm" in m else False
+        dropout = m['dropout'] if "dropout" in m else 0.0
+        data_aug= m['data_aug'] if "data_aug" in m else None
 
-    return pandas.DataFrame(data=data, index=[n['model_name'] for n in models_to_evaluate], columns=['Train', 'Test'])
+        model_kwargs = {
+            "batchNorm": batchNorm,
+            "dropout": dropout,
+            "augment_obs": data_aug
+        }
+
+        if impala:
+            agent = ImpalaAgent(initial_model_state_dict=saved_params)
+        else:
+            agent = OriginalNatureAgent(initial_model_state_dict=saved_params, model_kwargs=model_kwargs)
+        num_levels = m['num_levels']
+        print("Evaluating Training - " + str(num_levels) + "Levels \n")
+        train_winrate = evaluate_in_training(agent, num_levels)
+        print("Evaluating Testing 1 \n")
+        test_winrate1 = evaluate_in_testing(agent, start_level=40000)
+        print("Evaluating Testing 2 \n")
+        test_winrate2 = evaluate_in_testing(agent, start_level=50000)
+        print("Evaluating Testing 3 \n")
+        test_winrate3 = evaluate_in_testing(agent, start_level=60000)
+        
+        test_winrate = np.array([test_winrate1, test_winrate2, test_winrate3])
+
+        std = np.std(test_winrate)
+        avg = np.average(test_winrate)
+        wandb.log({
+            "name": m['model_name'],
+            "Train": train_winrate,
+            "Test 1": test_winrate1,
+            "Test 2": test_winrate2,
+            "Test 3": test_winrate3,
+            "Test Std": std,
+            "Test Avg": avg,
+        })
+        #data.append([train_winrate, test_winrate])
+
+    #return pandas.DataFrame(data=data, index=[n['model_name'] for n in models_to_evaluate], columns=['Train', 'Test_1', 'Test_2', 'Test_3', 'Test_Std', 'Test_Avg'])

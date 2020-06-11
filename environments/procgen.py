@@ -68,5 +68,8 @@ def make_env(*args, **kwargs):
     difficulty="easy"
     paint_vel_info=True
     seed=42069
-    env = gym.make("procgen:procgen-coinrun-v0", num_levels=num_levels, distribution_mode=difficulty, rand_seed=seed, paint_vel_info=paint_vel_info)
+    if "start_level" in kwargs:
+        env = gym.make("procgen:procgen-coinrun-v0", num_levels=num_levels, start_level=kwargs['start_level'], distribution_mode=difficulty, rand_seed=seed, paint_vel_info=paint_vel_info)
+    else:
+        env = gym.make("procgen:procgen-coinrun-v0", num_levels=num_levels, distribution_mode=difficulty, rand_seed=seed, paint_vel_info=paint_vel_info)
     return ProcgenWrapper(env)
