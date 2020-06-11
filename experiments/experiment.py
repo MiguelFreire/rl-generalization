@@ -65,7 +65,7 @@ class Experiment:
                   algo=algo,
                   agent=agent,
                   sampler=sampler,
-                  n_steps=50e6,
+                  n_steps=25e6,
                   log_interval_steps=500,
                   affinity=affinity,
                   seed=42069)

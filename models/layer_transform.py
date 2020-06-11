@@ -1,8 +1,11 @@
-from torch import nn
-import torch 
-import numbers
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import math
 import numpy as np
-import random 
+import numbers
+import random
+import time
 
 def rgb2hsv(rgb, eps=1e-8):
     # Reference: https://www.rapidtables.com/convert/color/rgb-to-hsv.html
@@ -80,44 +83,18 @@ def hsv2rgb(hsv):
     rgb = rgb.to(_device)
 
     return torch.clamp(rgb, 0, 1)
-
+    
 class ColorJitterLayer(nn.Module):
-    def __init__(self, 
-                 batch_size,
-                 brightness=0.4,                              
-                 contrast=0.4,
-                 saturation=0.4, 
-                 hue=0.5,
-                 p_rand=1.0,
-                 stack_size=1, 
-                 *_args,
-                 **_kwargs):
+    def __init__(self, brightness=0, contrast=0, saturation=0, hue=0, p=0, batch_size=128, stack_size=1):
         super(ColorJitterLayer, self).__init__()
         self.brightness = self._check_input(brightness, 'brightness')
         self.contrast = self._check_input(contrast, 'contrast')
         self.saturation = self._check_input(saturation, 'saturation')
         self.hue = self._check_input(hue, 'hue', center=0, bound=(-0.5, 0.5),
                                      clip_first_on_zero=False)
-        
-        self.prob = p_rand
+        self.prob = p
         self.batch_size = batch_size
         self.stack_size = stack_size
-        #self._device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    
-        # random paramters
-        factor_contrast = torch.empty(self.batch_size).uniform_(*self.contrast)
-        self.factor_contrast = factor_contrast.reshape(-1,1).repeat(1, self.stack_size).reshape(-1)
-        
-        factor_hue = torch.empty(self.batch_size).uniform_(*self.hue)
-        self.factor_hue = factor_hue.reshape(-1,1).repeat(1, self.stack_size).reshape(-1)
-        
-        factor_brightness = torch.empty(self.batch_size).uniform_(*self.brightness)
-        self.factor_brightness = factor_brightness.reshape(-1,1).repeat(1, self.stack_size).reshape(-1)
-        
-        factor_saturate = torch.empty(self.batch_size).uniform_(*self.saturation)
-        self.factor_saturate = factor_saturate.reshape(-1,1).repeat(1, self.stack_size).reshape(-1)
-        
-
         
     def _check_input(self, value, name, center=1, bound=(0, float('inf')), clip_first_on_zero=True):
         if isinstance(value, numbers.Number):
@@ -146,13 +123,19 @@ class ColorJitterLayer(nn.Module):
             Returns:
                 torch tensor image: Brightness adjusted
         """
+        _device = x.device
+        factor = torch.empty(self.batch_size, device=_device).uniform_(*self.contrast)
+        factor = factor.reshape(-1,1).repeat(1, self.stack_size).reshape(-1)
         means = torch.mean(x, dim=(2, 3), keepdim=True)
         return torch.clamp((x - means)
-                           * self.factor_contrast.view(len(x), 1, 1, 1) + means, 0, 1)
+                           * factor.view(len(x), 1, 1, 1) + means, 0, 1)
     
     def adjust_hue(self, x):
+        _device = x.device
+        factor = torch.empty(self.batch_size, device=_device).uniform_(*self.hue)
+        factor = factor.reshape(-1,1).repeat(1, self.stack_size).reshape(-1)
         h = x[:, 0, :, :]
-        h += (self.factor_hue.view(len(x), 1, 1) * 255. / 360.)
+        h += (factor.view(len(x), 1, 1) * 255. / 360.)
         h = (h % 1)
         x[:, 0, :, :] = h
         return x
@@ -168,8 +151,11 @@ class ColorJitterLayer(nn.Module):
             Returns:
                 torch tensor image: Brightness adjusted
         """
+        _device = x.device
+        factor = torch.empty(self.batch_size, device=_device).uniform_(*self.brightness)
+        factor = factor.reshape(-1,1).repeat(1, self.stack_size).reshape(-1)
         x[:, 2, :, :] = torch.clamp(x[:, 2, :, :]
-                                     * self.factor_brightness.view(len(x), 1, 1), 0, 1)
+                                     * factor.view(len(x), 1, 1), 0, 1)
         return torch.clamp(x, 0, 1)
     
     def adjust_saturate(self, x):
@@ -183,8 +169,11 @@ class ColorJitterLayer(nn.Module):
             Returns:
                 torch tensor image: Brightness adjusted
         """
+        _device = x.device
+        factor = torch.empty(self.batch_size, device=_device).uniform_(*self.saturation)
+        factor = factor.reshape(-1,1).repeat(1, self.stack_size).reshape(-1)
         x[:, 1, :, :] = torch.clamp(x[:, 1, :, :]
-                                    * self.factor_saturate.view(len(x), 1, 1), 0, 1)
+                                    * factor.view(len(x), 1, 1), 0, 1)
         return torch.clamp(x, 0, 1)
     
     def transform(self, inputs):
@@ -192,7 +181,6 @@ class ColorJitterLayer(nn.Module):
                               self.adjust_hue, self.adjust_saturate,
                               hsv2rgb]
         rgb_transform_list = [self.adjust_contrast]
-        
         # Shuffle transform
         if random.uniform(0,1) >= 0.5:
             transform_list = rgb_transform_list + hsv_transform_list
@@ -202,44 +190,11 @@ class ColorJitterLayer(nn.Module):
             inputs = t(inputs)
         return inputs
     
-    def do_augmentation(self, imgs):
-        # batch size
-        imgs = np.transpose(imgs, (0, 3, 2, 1))
-        inputs = torch.from_numpy(imgs).float()
-        inputs = inputs / 255.0
-        
-        outputs = self.forward(inputs)
-        outputs = outputs.data.cpu().numpy() * 255.0
-        outputs = np.transpose(outputs, (0, 3, 2, 1))
-        return outputs
-    
-    def change_randomization_params(self, index_):
-        self.factor_contrast[index_] = torch.empty(1).uniform_(*self.contrast)
-        self.factor_hue[index_] = torch.empty(1).uniform_(*self.hue)
-        self.factor_brightness[index_] = torch.empty(1).uniform_(*self.brightness)
-        self.factor_saturate[index_] = torch.empty(1).uniform_(*self.saturation)
-
-    def change_randomization_params_all(self):
-        factor_contrast = torch.empty(self.batch_size).uniform_(*self.contrast)
-        self.factor_contrast = factor_contrast.reshape(-1,1).repeat(1, self.stack_size).reshape(-1)
-        
-        factor_hue = torch.empty(self.batch_size).uniform_(*self.hue)
-        self.factor_hue = factor_hue.reshape(-1,1).repeat(1, self.stack_size).reshape(-1)
-        
-        factor_brightness = torch.empty(self.batch_size).uniform_(*self.brightness)
-        self.factor_brightness = factor_brightness.reshape(-1,1).repeat(1, self.stack_size).reshape(-1)
-        
-        factor_saturate = torch.empty(self.batch_size).uniform_(*self.saturation)
-        self.factor_saturate = factor_saturate.reshape(-1,1).repeat(1, self.stack_size).reshape(-1)
-        
-    def print_parms(self):
-        print(self.factor_hue)
-        
     def forward(self, inputs):
-        # batch size
+        _device = inputs.device
         random_inds = np.random.choice(
             [True, False], len(inputs), p=[self.prob, 1 - self.prob])
-        inds = torch.tensor(random_inds)
+        inds = torch.tensor(random_inds).to(_device)
         if random_inds.sum() > 0:
             inputs[inds] = self.transform(inputs[inds])
         return inputs

@@ -1,25 +1,22 @@
-import numpy as np
+import torch
 
-def random_cutout_color(imgs, min_cut=10,max_cut=30, num_cutouts=1):
-    """
-        args:
-        imgs: shape (B,C,H,W)
-        out: output size (e.g. 84)
-    """
-
+def random_cutout_color(imgs, min_cut=10, max_cut=30):
     n, c, h, w = imgs.shape
-
-    w1 = np.random.randint(min_cut, max_cut, (n, num_cutouts))
-    h1 = np.random.randint(min_cut, max_cut, (n, num_cutouts))
-
-    cutouts = np.empty((n, c, h, w), dtype=imgs.dtype)
-    rand_box = np.random.randint(0, 255, (n, num_cutouts, c)) / 255.
-    for i, (img, w11, h11) in enumerate(zip(imgs, w1, h1)):
-        cut_img = img.copy()
-        for j, (w22, h22) in enumerate(zip(w11, h11)):
-            cut_img[:, h22:h22 + h22, w22:w22 + w22] = np.tile(
-                rand_box[i][j].reshape(-1,1,1),                                                
-                (1,) + cut_img[:, h22:h22 + h22, w22:w22 + w22].shape[1:])
-        
-        cutouts[i] = cut_img
-    return cutouts
+    device = imgs.device
+    
+    box_h = torch.randint(min_cut, max_cut, (1,), device=device).item()
+    box_w = torch.randint(min_cut, max_cut, (1,), device=device).item()
+    
+    color = torch.randint(0, 255, (3,), device=device) / 255.
+    r = color[0].item()
+    g = color[1].item()
+    b = color[2].item()
+    
+    x = torch.randint(0, w - box_w - 1, (1,), device=device).item()
+    y = torch.randint(0, h - box_h -1, (1,), device=device).item()
+    
+    imgs[:,0, y:y+box_h,x:x+box_w] = r
+    imgs[:,1, y:y+box_h,x:x+box_w] = g
+    imgs[:,2, y:y+box_h,x:x+box_w] = b
+    
+    return imgs
