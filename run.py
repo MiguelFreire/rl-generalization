@@ -7,9 +7,8 @@ import math
 if __name__ == "__main__":
 
   experiments = [
-    BaseExperimentNature(name="CoinRunColorJitter", num_levels=500, augment_obs='jitter'),
-    BaseExperimentNature(name="CoinRunRandomConv", num_levels=500, augment_obs='rand_conv'),
-    BaseExperimentNature(name="CoinRunCutout", num_levels=500, augment_obs='cutout'),
+    BaseExperimentNature(name="CoinRun-Attention", num_levels=500, attention='normal'),
+    BaseExperimentNature(name="CoinRun-SelfAttention", num_levels=500, attention='self'),
   ]
 
   for experiment in experiments:

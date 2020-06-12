@@ -3,7 +3,7 @@ import torch
 from rlpyt.samplers.parallel.cpu.sampler import CpuSampler
 from rlpyt.runners.minibatch_rl import MinibatchRl
 from rlpyt.utils.logging.context import logger_context
-from agents.nature import OriginalNatureAgent
+from agents.nature import OriginalNatureAgent, AttentionNatureAgent, SelfAttentionNatureAgent
 from rlpyt.algos.pg.ppo import PPO
 from gym import Wrapper
 from environments.procgen import ProcgenWrapper
@@ -39,6 +39,7 @@ class Experiment:
             "num_levels": 500,
             "model": "nature",
             "augment_obs": ""
+            "attention": None,
         }
     
 
@@ -57,7 +58,13 @@ class Experiment:
             gae_lambda=config["lambda"], minibatches=config["minibatches_per_epoch"],
             epochs=config["epochs_per_rollout"], ratio_clip=config["ppo_clip"],
             learning_rate=config["learning_rate"], normalize_advantage=True, optim_kwargs=optim_args)
-        agent = OriginalNatureAgent(model_kwargs={"batchNorm": config["batchNorm"], "dropout": config["dropout"], "augment_obs": config["augment_obs"]})
+        
+        if config['attention'] == 'normal':
+            agent = AttentionNatureAgent()
+        elif config['attention'] == 'self':
+            agent = SelfAttentionNatureAgent()
+        else:
+            agent = OriginalNatureAgent(model_kwargs={"batchNorm": config["batchNorm"], "dropout": config["dropout"], "augment_obs": config["augment_obs"]})
         
         affinity = dict(cuda_idx=0, workers_cpus=list(range(config["workers"])))
 
