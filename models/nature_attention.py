@@ -3,6 +3,7 @@ from rlpyt.models.utils import conv2d_output_shape
 from models.attention import SelfAttention, ProjectorBlock, LinearAttentionBlock
 from rlpyt.utils.tensor import infer_leading_dims, restore_leading_dims
 from environments.procgen import make_env
+import numpy as np
 
 class NatureSelfAttention(torch.nn.Module):
     def __init__(self, image_shape, output_size):
