@@ -5,7 +5,7 @@ from rlpyt.utils.tensor import infer_leading_dims, restore_leading_dims
 from environments.procgen import make_env
 
 class NatureSelfAttention(torch.nn.Module):
-    def __init__(self, input_shape, output_size):
+    def __init__(self, image_shape, output_size):
         super().__init__()
         c, h, w = input_shape
         self.conv1 = torch.nn.Conv2d(in_channels=c, out_channels=32, kernel_size=8, stride=4, padding=0)
@@ -79,7 +79,7 @@ class NatureSelfAttention(torch.nn.Module):
 
 
 class NatureAttention(torch.nn.Module):
-    def __init__(self, input_shape, output_size):
+    def __init__(self, image_shape, output_size):
         super().__init__()
         c, h, w = input_shape
         self.conv1 = torch.nn.Conv2d(in_channels=c, out_channels=32, kernel_size=8, stride=4, padding=0)

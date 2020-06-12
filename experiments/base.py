@@ -21,7 +21,7 @@ class BaseExperimentNature(Experiment):
             "entropy_bonus": self.entropy_bonus,
             "ppo_clip": 0.2,
             "learning_rate": 5e-4,
-            "workers": 16,
+            "workers": 8,
             "envs_per_worker": 64,
             "total_timesteps": 25_000_000,
             "l2_penalty": self.l2_penalty,
