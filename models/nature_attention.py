@@ -7,7 +7,7 @@ from environments.procgen import make_env
 class NatureSelfAttention(torch.nn.Module):
     def __init__(self, image_shape, output_size):
         super().__init__()
-        c, h, w = input_shape
+        c, h, w = image_shape
         self.conv1 = torch.nn.Conv2d(in_channels=c, out_channels=32, kernel_size=8, stride=4, padding=0)
         self.conv2 = torch.nn.Conv2d(in_channels=32, out_channels=64, kernel_size=4, stride=3, padding=0)
         self.conv3 = torch.nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1, padding=1)
@@ -81,7 +81,7 @@ class NatureSelfAttention(torch.nn.Module):
 class NatureAttention(torch.nn.Module):
     def __init__(self, image_shape, output_size):
         super().__init__()
-        c, h, w = input_shape
+        c, h, w = image_shape
         self.conv1 = torch.nn.Conv2d(in_channels=c, out_channels=32, kernel_size=8, stride=4, padding=0)
         self.conv2 = torch.nn.Conv2d(in_channels=32, out_channels=64, kernel_size=4, stride=3, padding=0)
         self.conv3 = torch.nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1, padding=1)
