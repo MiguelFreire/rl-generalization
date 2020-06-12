@@ -38,7 +38,7 @@ class Experiment:
             "batchNorm": False,
             "num_levels": 500,
             "model": "nature",
-            "augment_obs": ""
+            "augment_obs": "",
             "attention": None,
         }
     
