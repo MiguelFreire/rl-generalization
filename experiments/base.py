@@ -1,7 +1,7 @@
 from experiments.experiment import Experiment
 
 class BaseExperimentNature(Experiment):
-    def __init__(self, name="CoinRunNatureLevels-default", num_levels=500, batchNorm=False, dropout=0.0, l2_penalty=0, entropy_bonus = 0.01, augment_obs=None, attention=None):
+    def __init__(self, name="CoinRunNatureLevels-default", num_levels=500, batchNorm=False, dropout=0.0, l2_penalty=0, entropy_bonus = 0.01, augment_obs=None, attention=None, self.num_steps=25_000_000):
       self.num_levels = num_levels
       self.batchNorm = batchNorm
       self.dropout = dropout
@@ -10,6 +10,7 @@ class BaseExperimentNature(Experiment):
       self.entropy_bonus = entropy_bonus
       self.augment_obs = augment_obs
       self.attention = attention
+      self.num_steps
     def getConfig(self):
         return {
             "name": self.name,
@@ -23,7 +24,7 @@ class BaseExperimentNature(Experiment):
             "learning_rate": 5e-4,
             "workers": 8,
             "envs_per_worker": 64,
-            "total_timesteps": 25_000_000,
+            "total_timesteps": self.num_steps,
             "l2_penalty": self.l2_penalty,
             "dropout": self.dropout,
             "batchNorm": self.batchNorm,

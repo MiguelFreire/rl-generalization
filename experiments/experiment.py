@@ -43,7 +43,7 @@ class Experiment:
         }
     
 
-    def run(self):
+    def run(self, run_ID=0):
         config = self.getConfig()
         sampler = CpuSampler(
                       EnvCls=make_env,
@@ -72,14 +72,12 @@ class Experiment:
                   algo=algo,
                   agent=agent,
                   sampler=sampler,
-                  n_steps=25e6,
+                  n_steps=config["total_timesteps"],
                   log_interval_steps=500,
-                  affinity=affinity,
-                  seed=42069)
+                  affinity=affinity)
         log_dir="./logs"
-        run_ID=1
         name=config["name"]
-        with logger_context(log_dir, run_ID, name, config, use_summary_writer=True):
+        with logger_context(log_dir, run_ID, name, config, use_summary_writer=True, override_prefix=False):
             runner.train()
         torch.save(agent.state_dict(), "./" + name + ".pt")
         wandb.save("./" + name + ".pt")
