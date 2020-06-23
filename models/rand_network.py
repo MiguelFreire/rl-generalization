@@ -30,7 +30,9 @@ def random_convolution(imgs):
     # initialize random covolution
     rand_conv = torch.nn.Conv2d(3, 3, kernel_size=3, bias=False, padding=1)
     rand_conv.weight.requires_grad = False
-    torch.nn.init.xavier_normal_(rand_conv.weight.data)
     if imgs.is_cuda:
-        rand_conv.cuda()
-    return rand_conv(imgs)
+          rand_conv.cuda()
+    for i, img in enumerate(imgs):
+      torch.nn.init.xavier_normal_(rand_conv.weight.data, gain=0.5)
+      imgs[i] = rand_conv(img.unsqueeze(0))[0]
+    return imgs
