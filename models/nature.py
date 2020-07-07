@@ -10,7 +10,7 @@ import numpy as np
 import math
 
 class NatureCNNModel(torch.nn.Module):
-    def __init__(self, image_shape, output_size, batchNorm=False, dropout=0.0, augment_obs=None):
+    def __init__(self, image_shape, output_size, batchNorm=False, dropout=0.0, augment_obs=None, use_maxpool=False, hidden_sizes=512):
         super().__init__()
 
         self.augment_obs = augment_obs  
@@ -22,8 +22,8 @@ class NatureCNNModel(torch.nn.Module):
             kernel_sizes=[8,4,3],
             strides=[4,3,1],
             paddings=[0,0,1],
-            use_maxpool=False,
-            hidden_sizes=512,
+            use_maxpool=use_maxpool,
+            hidden_sizes=hidden_sizes,
             batchNorm=batchNorm,
             dropout=dropout
         )

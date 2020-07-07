@@ -7,9 +7,9 @@ import math
 if __name__ == "__main__":
 
   experiments = [
-    BaseExperimentNature(name="NatureCNN-RandConv", num_levels=200, augment_obs='rand_conv'),
-    BaseExperimentNature(name="NatureCNN-ColorJitter", num_levels=200, augment_obs='jitter'),
-    BaseExperimentNature(name="NatureCNN-Cutout", num_levels=200, augment_obs='cutout'),
+    BaseExperimentNature(name="NatureCNN-HiddenSize-256", num_levels=200, hidden_sizes=256),
+    BaseExperimentNature(name="NatureCNN-HiddenSize-1024", num_levels=200, hidden_sizes=1024),
+    BaseExperimentNature(name="NatureCNN-MaxPooling", num_levels=200, max_pooling=True),
   ]
 
   for i,experiment in enumerate(experiments):

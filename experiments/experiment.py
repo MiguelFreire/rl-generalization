@@ -40,6 +40,8 @@ class Experiment:
             "model": "nature",
             "augment_obs": "",
             "attention": None,
+            "maxpool": False,
+            "hidden_sizes": 512,
         }
     
 
@@ -64,7 +66,7 @@ class Experiment:
         elif config['attention'] == 'self':
             agent = SelfAttentionNatureAgent()
         else:
-            agent = OriginalNatureAgent(model_kwargs={"batchNorm": config["batchNorm"], "dropout": config["dropout"], "augment_obs": config["augment_obs"]})
+            agent = OriginalNatureAgent(model_kwargs={"batchNorm": config["batchNorm"], "dropout": config["dropout"], "augment_obs": config["augment_obs"], "use_maxpool": config["maxpool"], "hidden_sizes": config["hidden_sizes"]})
         
         affinity = dict(cuda_idx=0, workers_cpus=list(range(config["workers"])))
 
