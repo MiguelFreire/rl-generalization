@@ -81,11 +81,15 @@ def evaluate_generalization(models_to_evaluate, name, impala=False):
         batchNorm = m['batchNorm'] if "batchNorm" in m else False
         dropout = m['dropout'] if "dropout" in m else 0.0
         data_aug= m['data_aug'] if "data_aug" in m else None
+        hidden_sizes = m['hidden_sizes'] if "hidden_sizes" in m else 512
+        max_pooling = m['max_pooling'] if "max_pooling" in m else False
 
         model_kwargs = {
             "batchNorm": batchNorm,
             "dropout": dropout,
-            "augment_obs": data_aug
+            "augment_obs": data_aug,
+            "hidden_sizes": hidden_sizes,
+            "max_pooling": max_pooling,
         }
 
         if impala:
@@ -118,3 +122,4 @@ def evaluate_generalization(models_to_evaluate, name, impala=False):
         #data.append([train_winrate, test_winrate])
 
     #return pandas.DataFrame(data=data, index=[n['model_name'] for n in models_to_evaluate], columns=['Train', 'Test_1', 'Test_2', 'Test_3', 'Test_Std', 'Test_Avg'])
+    return

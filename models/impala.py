@@ -68,10 +68,6 @@ class ImpalaCNN(torch.nn.Module):
         self.blocks = torch.nn.Sequential(*impala_blocks)
         
     def forward(self,x):
-        y = self.blocks(x)
-        y = y.view(x.shape[0], -1) #flatten
-        y = torch.nn.functional.relu(y)
-
         return self.blocks(x)
 
     def conv_out_size(self, h, w, c=None):
@@ -93,6 +89,7 @@ class ImpalaHead(torch.nn.Module):
 
         self.conv = ImpalaCNN(in_channels, out_channels)
         conv_output_size = self.conv.conv_out_size(h,w,c)
+        print(conv_output_size)
         self.head = torch.nn.Linear(conv_output_size, hidden_size)
         self.output_size = hidden_size
     def forward(self,x):
