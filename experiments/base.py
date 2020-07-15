@@ -36,7 +36,7 @@ class BaseExperimentNature(Experiment):
             "augment_obs": self.augment_obs,
             "attention": self.attention,
             "maxpool": self.max_pooling,
-            "hidden_sizes": self.hidden_sizes
+            "hidden_sizes": self.hidden_sizes,
             "arch": self.arch
         }
 
