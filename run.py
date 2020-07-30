@@ -4,20 +4,30 @@ import os
 import sys
 import math
 
+from argparse import ArgumentParser
+
 if __name__ == "__main__":
-
-  experiments = [
-    BaseExperimentNature(name="NatureCNN-200", num_levels=200),
-    BaseExperimentNature(name="NatureCNN-Arch-Depth+1", num_levels=200, arch="depth+1"),
-    BaseExperimentNature(name="NatureCNN-Arch-Depth+2", num_levels=200, arch="depth+2"),
-    BaseExperimentNature(name="NatureCNN-Arch-Channels/2", num_levels=200, arch="channels/2"),
-    BaseExperimentNature(name="NatureCNN-Arch-Channels*2", num_levels=200, arch="channels*2"),
-  ]
-
-  for i,experiment in enumerate(experiments):
-    run = wandb.init(config=experiment.getConfig(), reinit=True, sync_tensorboard=True)
-    with run:
-      experiment.run(run_ID=i)
+  parser = ArgumentParser()
+  
+  parser.add_argument('--name', type=str, default="Default Name")
+  parser.add_argument('--num_levels', type=int, default=200)
+  parser.add_argument('--batchNorm', type=bool, default=False)
+  parser.add_argument('--dropout', type=float, default=0.0)
+  parser.add_argument('--l2_penalty', type=float, default=0)
+  parser.add_argument('--entropy_bonus', type=float, default=0.01)
+  parser.add_argument('--augment_obs', type=str, default=None)
+  parser.add_argument('--attention', type=str, default=None)
+  parser.add_argument('--num_steps', type=int, default=25_000_000)
+  parser.add_argument('--hidden_sizes', type=int, default=512)
+  parser.add_argument('--max_pooling', type=bool, default=False)
+  parser.add_argument('--arch', type=str, default="original")  
+  
+  args = parser.parse_args()
+  
+  experiments = BaseExperimentNature(**args)
+  
+  run = wandb.init(config=experiment.getConfig(), reinit=False, sync_tensorboard=True)
+  experiment.run()
 
   sys.exit(0)
         

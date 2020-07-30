@@ -16,7 +16,15 @@ def make_env(*args, **kwargs):
     difficulty="easy"
     paint_vel_info=True
     seed=42069
-    env = gym.make("procgen:procgen-coinrun-v0", num_levels=num_levels, distribution_mode=difficulty, rand_seed=seed, paint_vel_info=paint_vel_info)
+    
+    if kwargs['env'] == 'heist':
+      env_name = "procgen:procgen-heist-v0"
+    elif kwargs['env'] == 'starpilot':
+      env_name = "procgen:procgen-starpilot-v0"
+    else:
+      env_name = "procgen:procgen-coinrun-v0"
+    
+    env = gym.make(env_name, num_levels=num_levels, distribution_mode=difficulty, rand_seed=seed, paint_vel_info=paint_vel_info)
     return ProcgenWrapper(env)
 
 class Experiment:
@@ -43,6 +51,7 @@ class Experiment:
             "maxpool": False,
             "hidden_sizes": 512,
             "arch": "original",
+            "env": "coinrun",
         }
     
 
@@ -50,7 +59,7 @@ class Experiment:
         config = self.getConfig()
         sampler = CpuSampler(
                       EnvCls=make_env,
-                      env_kwargs={"num_levels": config["num_levels"]},
+                      env_kwargs={"num_levels": config["num_levels"], "env": config['env']},
                       batch_T=256,
                       batch_B=8,
                       max_decorrelation_steps=0)
