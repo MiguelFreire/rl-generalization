@@ -7,6 +7,7 @@ import math
 from argparse import ArgumentParser
 
 if __name__ == "__main__":
+
   parser = ArgumentParser()
   
   parser.add_argument('--name', type=str, default="Default Name")
@@ -20,13 +21,14 @@ if __name__ == "__main__":
   parser.add_argument('--num_steps', type=int, default=25_000_000)
   parser.add_argument('--hidden_sizes', type=int, default=512)
   parser.add_argument('--max_pooling', type=bool, default=False)
-  parser.add_argument('--arch', type=str, default="original")  
+  parser.add_argument('--arch', type=str, default="original")
+  parser.add_argument('--env', type=str, default="coinrun")
   
   args = parser.parse_args()
   
-  experiments = BaseExperimentNature(**args)
-  
-  run = wandb.init(config=experiment.getConfig(), reinit=False, sync_tensorboard=True)
+  experiment = BaseExperimentNature(**vars(args))
+  config = experiment.getConfig()
+  run = wandb.init(name=config['name'], config=config, reinit=False, sync_tensorboard=True)
   experiment.run()
 
   sys.exit(0)
