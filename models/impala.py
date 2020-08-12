@@ -1,19 +1,27 @@
 import torch
+from torch.nn import functional as F
 from rlpyt.models.utils import conv2d_output_shape
 from rlpyt.utils.tensor import infer_leading_dims, restore_leading_dims
 
 
 class ResidualBlock(torch.nn.Module):
-    def __init__(self, channels):
+    def __init__(self, channels, layers=2, kernel_size=3, stride=1, padding=1):
         super().__init__()
-        conv1 = torch.nn.Conv2d(in_channels=channels, out_channels=channels, kernel_size=3, stride=1, padding=1)
-        conv2 = torch.nn.Conv2d(in_channels=channels, out_channels=channels, kernel_size=3, stride=1, padding=1)
 
         non_linearlity = torch.nn.ReLU()
 
-        self.block = torch.nn.Sequential(*[non_linearlity, conv1, non_linearlity, conv2])
+        if layers == 2:
+            conv1 = torch.nn.Conv2d(in_channels=channels, out_channels=channels, kernel_size=kernel_size, stride=stride, padding=padding)
+            conv2 = torch.nn.Conv2d(in_channels=channels, out_channels=channels, kernel_size=kernel_size, stride=stride, padding=padding)
+
+            self.block = torch.nn.Sequential(*[conv1, non_linearlity, conv2])
+        else:
+            conv = torch.nn.Conv2d(in_channels=channels, out_channels=channels, kernel_size=kernel_size, stride=stride, padding=padding)
+            self.block = conv
+
+        
     def forward(self, x):
-        return self.block(x) + x
+        return F.relu(self.block(x) + x)
 
     def conv_out_size(self, h, w, c=None):
         """Helper function ot return the output size for a given input shape,

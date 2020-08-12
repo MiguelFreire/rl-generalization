@@ -2,7 +2,7 @@ import torch
 
 from rlpyt.models.mlp import MlpModel
 from rlpyt.models.utils import conv2d_output_shape
-
+from models.impala import ResidualBlock
 
 class Conv2dModel(torch.nn.Module):
     """2-D Convolutional model component, with option for max-pooling vs
@@ -41,9 +41,9 @@ class Conv2dModel(torch.nn.Module):
         for conv_layer, maxp_stride in zip(conv_layers, maxp_strides):
             sequence.extend([conv_layer, nonlinearity()])
             if batchNorm:
-              sequence.append(torch.nn.BatchNorm2d(conv_layer.out_channels))
+                sequence.append(torch.nn.BatchNorm2d(conv_layer.out_channels))
             if dropout > 0.0:
-              sequence.append(torch.nn.Dropout2d(dropout))
+                sequence.append(torch.nn.Dropout2d(dropout))
             if maxp_stride > 1:
                 sequence.append(torch.nn.MaxPool2d(maxp_stride))  # No padding.
         self.conv = torch.nn.Sequential(*sequence)
@@ -67,7 +67,36 @@ class Conv2dModel(torch.nn.Module):
             except AttributeError:
                 pass  # Not a conv layer.
         return h * w * c
-      
+
+class Conv2dResModel(torch.nn.Module):
+    def __init__(self, in_channels, layers=2):
+        super().__init__()
+        conv1 = torch.nn.Conv2d(in_channels=3, out_channels=32,
+            kernel_size=8, stride=4, padding=0)
+        resBlock = ResidualBlock(64, layers=layers, kernel_size=4, stride=3, padding=0)
+        resBlock2 = ResidualBlock(64, layers=layers, kernel_size=3, stride=1, padding=1)
+
+        self.conv = torch.nn.Sequential(*[conv1, resBlock, resBlock2])
+
+    def forward(self, x):
+        return self.conv(x)
+
+    def conv_out_size(self, h, w, c=None):
+        """Helper function ot return the output size for a given input shape,
+        without actually performing a forward pass through the model."""
+        for child in self.block.children():
+            if isinstance(child, torch.nn.Conv2d):
+                h, w = conv2d_output_shape(h, w, child.kernel_size,
+                    child.stride, child.padding)
+                c = child.out_channels
+            elif isinstance(child, torch.nn.MaxPool2d):
+                h, w = conv2d_output_shape(h, w, child.kernel_size,
+                    child.stride, child.padding)
+            elif isinstance(child, ResidualBlock):
+                h, w, c = child.conv_out_size(h,w,c)
+            
+        return h, w, c
+
 class Conv2dHeadModel(torch.nn.Module):
     """Model component composed of a ``Conv2dModel`` component followed by 
     a fully-connected ``MlpModel`` head.  Requires full input image shape to
@@ -86,21 +115,26 @@ class Conv2dHeadModel(torch.nn.Module):
             nonlinearity=torch.nn.ReLU,
             use_maxpool=False,
             batchNorm=False,
-            dropout=0.0
+            dropout=0.0,
+            useResNet=False,
+            resNetLayers=2,
             ):
         super().__init__()
         c, h, w = image_shape
-        self.conv = Conv2dModel(
-            in_channels=c,
-            channels=channels,
-            kernel_sizes=kernel_sizes,
-            strides=strides,
-            paddings=paddings,
-            nonlinearity=nonlinearity,
-            use_maxpool=use_maxpool,
-            batchNorm=batchNorm,
-            dropout=dropout
-        )
+        if useResNet:
+            self.conv = Conv2dResModel(c, layers=resNetLayers)
+        else:
+            self.conv = Conv2dModel(
+                in_channels=c,
+                channels=channels,
+                kernel_sizes=kernel_sizes,
+                strides=strides,
+                paddings=paddings,
+                nonlinearity=nonlinearity,
+                use_maxpool=use_maxpool,
+                batchNorm=batchNorm,
+                dropout=dropout
+            )
         conv_out_size = self.conv.conv_out_size(h, w)
         if hidden_sizes or output_size:
             self.head = MlpModel(conv_out_size, hidden_sizes,

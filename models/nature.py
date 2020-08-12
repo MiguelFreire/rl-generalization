@@ -45,7 +45,8 @@ class NatureCNNModel(torch.nn.Module):
           strides=[4,3,1]
           paddings=[0,0,1]
           
-          
+        resnet = arch=="resnet" or arch=="resnet2"
+
         self.conv = Conv2dHeadModel(
           image_shape=image_shape,
           channels=channels,
@@ -55,7 +56,9 @@ class NatureCNNModel(torch.nn.Module):
           use_maxpool=use_maxpool,
           hidden_sizes=hidden_sizes,
           batchNorm=batchNorm,
-          dropout=dropout
+          dropout=dropout,
+          useResNet=resnet,
+          resNetLayers=2 if arch == "resnet2" else 1,
         )
           
         #policy head
