@@ -14,7 +14,7 @@ class BaseExperimentNature(Experiment):
       self.max_pooling = max_pooling
       self.hidden_sizes = hidden_sizes
       self.arch = arch
-      self.env = "coinrun"
+      self.env = env
     def getConfig(self):
         return {
             "name": self.name,
