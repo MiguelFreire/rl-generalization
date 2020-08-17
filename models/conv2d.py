@@ -69,14 +69,25 @@ class Conv2dModel(torch.nn.Module):
         return h * w * c
 
 class Conv2dResModel(torch.nn.Module):
-    def __init__(self, in_channels, layers=2):
+    def __init__(self, in_channels, layers=2, use_maxpool=False):
         super().__init__()
-        conv1 = torch.nn.Conv2d(in_channels=3, out_channels=32,
+        seq = list()
+        conv1 = torch.nn.Conv2d(in_channels=in_channels, out_channels=32,
             kernel_size=8, stride=4, padding=0)
-        resBlock = ResidualBlock(64, layers=layers, kernel_size=4, stride=3, padding=0)
-        resBlock2 = ResidualBlock(64, layers=layers, kernel_size=3, stride=1, padding=1)
-
-        self.conv = torch.nn.Sequential(*[conv1, resBlock, resBlock2])
+        seq.append(conv1)
+        
+        if use_maxpool:
+          max_pool = torch.nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+          seq.append(max_pool)
+        
+        resBlock = ResidualBlock(in_channels=32, channels=64, layers=layers, kernel_size=3, stride=1, padding=1, useConv1x1=True)
+        resBlock2 = ResidualBlock(in_channels=64, channels=64, layers=layers, kernel_size=3, stride=1, padding=1)
+        
+        seq.append(resBlock)
+        seq.append(resBlock2)
+        
+        
+        self.conv = torch.nn.Sequential(*seq)
 
     def forward(self, x):
         return self.conv(x)
@@ -84,7 +95,7 @@ class Conv2dResModel(torch.nn.Module):
     def conv_out_size(self, h, w, c=None):
         """Helper function ot return the output size for a given input shape,
         without actually performing a forward pass through the model."""
-        for child in self.block.children():
+        for child in self.conv.children():
             if isinstance(child, torch.nn.Conv2d):
                 h, w = conv2d_output_shape(h, w, child.kernel_size,
                     child.stride, child.padding)
@@ -94,8 +105,8 @@ class Conv2dResModel(torch.nn.Module):
                     child.stride, child.padding)
             elif isinstance(child, ResidualBlock):
                 h, w, c = child.conv_out_size(h,w,c)
-            
-        return h, w, c
+            print(h,w,c)
+        return h * w * c
 
 class Conv2dHeadModel(torch.nn.Module):
     """Model component composed of a ``Conv2dModel`` component followed by 
@@ -122,7 +133,7 @@ class Conv2dHeadModel(torch.nn.Module):
         super().__init__()
         c, h, w = image_shape
         if useResNet:
-            self.conv = Conv2dResModel(c, layers=resNetLayers)
+            self.conv = Conv2dResModel(c, layers=resNetLayers, use_maxpool=use_maxpool)
         else:
             self.conv = Conv2dModel(
                 in_channels=c,

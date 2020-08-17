@@ -5,23 +5,30 @@ from rlpyt.utils.tensor import infer_leading_dims, restore_leading_dims
 
 
 class ResidualBlock(torch.nn.Module):
-    def __init__(self, channels, layers=2, kernel_size=3, stride=1, padding=1):
+    def __init__(self, in_channels, channels, layers=2, kernel_size=3, stride=1, padding=1, useConv1x1=False):
         super().__init__()
 
         non_linearlity = torch.nn.ReLU()
 
         if layers == 2:
-            conv1 = torch.nn.Conv2d(in_channels=channels, out_channels=channels, kernel_size=kernel_size, stride=stride, padding=padding)
+            conv1 = torch.nn.Conv2d(in_channels=in_channels, out_channels=channels, kernel_size=kernel_size, stride=stride, padding=padding)
             conv2 = torch.nn.Conv2d(in_channels=channels, out_channels=channels, kernel_size=kernel_size, stride=stride, padding=padding)
 
             self.block = torch.nn.Sequential(*[conv1, non_linearlity, conv2])
         else:
-            conv = torch.nn.Conv2d(in_channels=channels, out_channels=channels, kernel_size=kernel_size, stride=stride, padding=padding)
-            self.block = conv
+            conv = torch.nn.Conv2d(in_channels=in_channels, out_channels=channels, kernel_size=kernel_size, stride=stride, padding=padding)
+            self.block = torch.nn.Sequential(*[conv])
+        
+        self.conv1x1 = torch.nn.Conv2d(in_channels, out_channels=channels, kernel_size=1, stride=1) if useConv1x1 else None
 
         
     def forward(self, x):
-        return F.relu(self.block(x) + x)
+        residual = x
+        if self.conv1x1:
+            residual = self.conv1x1(x)
+        y = self.block(x)
+
+        return F.relu(y + residual)
 
     def conv_out_size(self, h, w, c=None):
         """Helper function ot return the output size for a given input shape,
@@ -97,7 +104,7 @@ class ImpalaHead(torch.nn.Module):
 
         self.conv = ImpalaCNN(in_channels, out_channels)
         conv_output_size = self.conv.conv_out_size(h,w,c)
-        print(conv_output_size)
+
         self.head = torch.nn.Linear(conv_output_size, hidden_size)
         self.output_size = hidden_size
     def forward(self,x):
