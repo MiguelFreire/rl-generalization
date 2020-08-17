@@ -105,7 +105,6 @@ class Conv2dResModel(torch.nn.Module):
                     child.stride, child.padding)
             elif isinstance(child, ResidualBlock):
                 h, w, c = child.conv_out_size(h,w,c)
-            print(h,w,c)
         return h * w * c
 
 class Conv2dHeadModel(torch.nn.Module):
