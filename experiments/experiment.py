@@ -4,6 +4,7 @@ from rlpyt.samplers.parallel.cpu.sampler import CpuSampler
 from rlpyt.runners.minibatch_rl import MinibatchRl
 from rlpyt.utils.logging.context import logger_context
 from agents.nature import OriginalNatureAgent, AttentionNatureAgent, SelfAttentionNatureAgent
+from agents.impala import ImpalaAgent
 from rlpyt.algos.pg.ppo import PPO
 from gym import Wrapper
 from environments.procgen import ProcgenWrapper
@@ -71,10 +72,8 @@ class Experiment:
             epochs=config["epochs_per_rollout"], ratio_clip=config["ppo_clip"],
             learning_rate=config["learning_rate"], normalize_advantage=True, optim_kwargs=optim_args)
         
-        if config['attention'] == 'normal':
-            agent = AttentionNatureAgent()
-        elif config['attention'] == 'self':
-            agent = SelfAttentionNatureAgent()
+        if config["arch"] == 'impala':
+            agent = ImpalaAgent(model_kwargs={"in_channels": [3,16], "out_channels": [16,32], "hidden_size": config["hidden_sizes"]})
         else:
             agent = OriginalNatureAgent(model_kwargs={"batchNorm": config["batchNorm"], "dropout": config["dropout"], "augment_obs": config["augment_obs"], "use_maxpool": config["maxpool"], "hidden_sizes": config["hidden_sizes"], "arch": config["arch"]})
         

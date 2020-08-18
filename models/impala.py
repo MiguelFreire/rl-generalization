@@ -50,8 +50,8 @@ class ImpalaBlock(torch.nn.Module):
         super().__init__()
         conv1 = torch.nn.Conv2d(in_channels=in_channels, out_channels=channels, kernel_size=3, stride=1, padding=1)
         maxpool = torch.nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
-        resBlock1 = ResidualBlock(channels)
-        resBlock2 = ResidualBlock(channels)
+        resBlock1 = ResidualBlock(in_channels=channels, channels=channels)
+        resBlock2 = ResidualBlock(in_channels=channels, channels=channels)
 
         self.block = torch.nn.Sequential(*[conv1, maxpool, resBlock1, resBlock2])
 

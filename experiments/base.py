@@ -22,7 +22,7 @@ class BaseExperimentNature(Experiment):
             "lambda": 0.95,
             "timesteps_per_rollout": 256,
             "epochs_per_rollout": 3,
-            "minibatches_per_epoch": 8,
+            "minibatches_per_epoch": 64,
             "entropy_bonus": self.entropy_bonus,
             "ppo_clip": 0.2,
             "learning_rate": 5e-4,
