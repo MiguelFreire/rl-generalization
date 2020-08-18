@@ -73,7 +73,7 @@ class Experiment:
             learning_rate=config["learning_rate"], normalize_advantage=True, optim_kwargs=optim_args)
         
         if config["arch"] == 'impala':
-            agent = ImpalaAgent(model_kwargs={"in_channels": [3,16], "out_channels": [16,32], "hidden_size": config["hidden_sizes"]})
+            agent = ImpalaAgent(model_kwargs={"in_channels": [3,16,32], "out_channels": [16,32,32], "hidden_size": config["hidden_sizes"]})
         else:
             agent = OriginalNatureAgent(model_kwargs={"batchNorm": config["batchNorm"], "dropout": config["dropout"], "augment_obs": config["augment_obs"], "use_maxpool": config["maxpool"], "hidden_sizes": config["hidden_sizes"], "arch": config["arch"]})
         
