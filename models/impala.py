@@ -14,10 +14,10 @@ class ResidualBlock(torch.nn.Module):
             conv1 = torch.nn.Conv2d(in_channels=in_channels, out_channels=channels, kernel_size=kernel_size, stride=stride, padding=padding)
             conv2 = torch.nn.Conv2d(in_channels=channels, out_channels=channels, kernel_size=kernel_size, stride=stride, padding=padding)
 
-            self.block = torch.nn.Sequential(*[conv1, non_linearlity, conv2])
+            self.block = torch.nn.Sequential(*[non_linearlity, conv1, non_linearlity, conv2])
         else:
             conv = torch.nn.Conv2d(in_channels=in_channels, out_channels=channels, kernel_size=kernel_size, stride=stride, padding=padding)
-            self.block = torch.nn.Sequential(*[conv])
+            self.block = torch.nn.Sequential(*[non_linearlity, conv])
         
         self.conv1x1 = torch.nn.Conv2d(in_channels, out_channels=channels, kernel_size=1, stride=1) if useConv1x1 else None
 
@@ -28,7 +28,7 @@ class ResidualBlock(torch.nn.Module):
             residual = self.conv1x1(x)
         y = self.block(x)
 
-        return F.relu(y + residual)
+        return y + residual
 
     def conv_out_size(self, h, w, c=None):
         """Helper function ot return the output size for a given input shape,
