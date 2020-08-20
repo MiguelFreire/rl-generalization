@@ -1,9 +1,11 @@
 import torch
 
-from rlpyt.samplers.parallel.cpu.sampler import CpuSampler
+#from rlpyt.samplers.parallel.cpu.sampler import CpuSampler
+from rlpyt.samplers.gpu.parallel_sampler import GpuSampler
 from rlpyt.runners.minibatch_rl import MinibatchRl
 from rlpyt.utils.logging.context import logger_context
 from agents.nature import OriginalNatureAgent, AttentionNatureAgent, SelfAttentionNatureAgent
+from rlpyt.samplers.gpu.collectors import ResetCollector
 from agents.impala import ImpalaAgent
 from rlpyt.algos.pg.ppo import PPO
 from gym import Wrapper
@@ -60,12 +62,13 @@ class Experiment:
 
     def run(self, run_ID=0):
         config = self.getConfig()
-        sampler = CpuSampler(
+        sampler = GpuSampler(
                       EnvCls=make_env,
                       env_kwargs={"num_levels": config["num_levels"], "env": config['env']},
+                      CollectorCls=ResetCollector,
                       batch_T=256,
-                      batch_B=8,
-                      max_decorrelation_steps=0)
+                      batch_B=config["envs_per_worker"],
+                      max_decorrelation_steps=1000)
         
         optim_args = dict(weight_decay=config["l2_penalty"]) if "l2_penalty" in config else None
 
@@ -79,7 +82,7 @@ class Experiment:
         else:
             agent = OriginalNatureAgent(model_kwargs={"batchNorm": config["batchNorm"], "dropout": config["dropout"], "augment_obs": config["augment_obs"], "use_maxpool": config["maxpool"], "hidden_sizes": config["hidden_sizes"], "arch": config["arch"]})
         
-        affinity = dict(cuda_idx=0, workers_cpus=list(range(config["workers"])))
+        affinity = dict(cuda_idx=0, workers_cpus=list(range(config["envs_per_worker"])))
 
         runner = MinibatchRl(
                   algo=algo,
