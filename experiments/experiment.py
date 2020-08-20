@@ -25,7 +25,9 @@ def make_env(*args, **kwargs):
     else:
       env_name = "procgen:procgen-coinrun-v0"
     
-    env = gym.make(env_name, num_levels=num_levels, distribution_mode=difficulty, rand_seed=seed, paint_vel_info=paint_vel_info)
+    start_level = kwargs["start_level"] if "start_level" in kwargs else 0
+
+    env = gym.make(env_name, num_levels=num_levels, start_level=start_level, distribution_mode=difficulty, paint_vel_info=paint_vel_info)
     return ProcgenWrapper(env)
 
 class Experiment:
