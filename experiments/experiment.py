@@ -1,6 +1,7 @@
 import torch
 
 #from rlpyt.samplers.parallel.cpu.sampler import CpuSampler
+from rlpyt.utils.launching.affinity import affinity_from_code
 from rlpyt.samplers.parallel.gpu.sampler import GpuSampler
 from rlpyt.runners.minibatch_rl import MinibatchRl
 from rlpyt.utils.logging.context import logger_context
@@ -82,7 +83,7 @@ class Experiment:
         else:
             agent = OriginalNatureAgent(model_kwargs={"batchNorm": config["batchNorm"], "dropout": config["dropout"], "augment_obs": config["augment_obs"], "use_maxpool": config["maxpool"], "hidden_sizes": config["hidden_sizes"], "arch": config["arch"]})
         
-        affinity = dict(cuda_idx=0, workers_cpus=list(range(config["envs_per_worker"])))
+        affinity = dict(cuda_idx=0, workers_cpus=list(range(8)))
 
         runner = MinibatchRl(
                   algo=algo,
