@@ -1,11 +1,11 @@
 import torch
 
 #from rlpyt.samplers.parallel.cpu.sampler import CpuSampler
-from rlpyt.samplers.gpu.parallel_sampler import GpuSampler
+from rlpyt.samplers.parallel.gpu.sampler import GpuSampler
 from rlpyt.runners.minibatch_rl import MinibatchRl
 from rlpyt.utils.logging.context import logger_context
 from agents.nature import OriginalNatureAgent, AttentionNatureAgent, SelfAttentionNatureAgent
-from rlpyt.samplers.gpu.collectors import ResetCollector
+from rlpyt.samplers.parallel.gpu.collectors import GpuResetCollector
 from agents.impala import ImpalaAgent
 from rlpyt.algos.pg.ppo import PPO
 from gym import Wrapper
@@ -65,7 +65,7 @@ class Experiment:
         sampler = GpuSampler(
                       EnvCls=make_env,
                       env_kwargs={"num_levels": config["num_levels"], "env": config['env']},
-                      CollectorCls=ResetCollector,
+                      CollectorCls=GpuResetCollector,
                       batch_T=256,
                       batch_B=config["envs_per_worker"],
                       max_decorrelation_steps=1000)
