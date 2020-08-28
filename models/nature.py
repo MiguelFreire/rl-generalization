@@ -12,7 +12,7 @@ import math
 class NatureCNNModel(torch.nn.Module):
     def __init__(self, 
                  image_shape, output_size, batchNorm=False, dropout=0.0, 
-                 augment_obs=None, use_maxpool=False, hidden_sizes=512,
+                 augment_obs=None, use_maxpool=False, hidden_sizes=[512],
                  arch="original",
                 ):
         super().__init__()
