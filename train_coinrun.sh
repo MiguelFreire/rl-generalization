@@ -30,3 +30,6 @@ WANDB_PROJECT="rl-generalization-coinrun-train-2" python run.py --name="CoinRun-
 WANDB_PROJECT="rl-generalization-coinrun-train-2" python run.py --name="CoinRun-Arch-Channels-d2" --arch=channels/2 --env=coinrun
 WANDB_PROJECT="rl-generalization-coinrun-train-2" python run.py --name="CoinRun-Arch-Channels-t2" --arch=channels*2 --env=coinrun
 WANDB_PROJECT="rl-generalization-coinrun-train-2" python run.py --name="CoinRun-Arch-IMPALA" --arch=impala --env=coinrun
+WANDB_PROJECT="rl-generalization-coinrun-train-2" python run.py --name="CoinRun-DataAug-ColorJitter" --augment_obs=jitter --env=coinrun
+WANDB_PROJECT="rl-generalization-coinrun-train-2" python run.py --name="CoinRun-DataAug-Cutout" --augment_obs=cutout --env=coinrun
+WANDB_PROJECT="rl-generalization-coinrun-train-2" python run.py --name="CoinRun-DataAug-RandConv" --augment_obs=rand_conv --env=coinrun

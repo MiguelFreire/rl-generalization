@@ -30,3 +30,6 @@ WANDB_PROJECT="rl-generalization-chaser-train" python run.py --name="Chaser-Arch
 WANDB_PROJECT="rl-generalization-chaser-train" python run.py --name="Chaser-Arch-Channels-d2" --arch=channels/2 --env=chaser
 WANDB_PROJECT="rl-generalization-chaser-train" python run.py --name="Chaser-Arch-Channels-t2" --arch=channels*2 --env=chaser
 WANDB_PROJECT="rl-generalization-chaser-train" python run.py --name="Chaser-Arch-IMPALA" --arch=impala --env=chaser
+WANDB_PROJECT="rl-generalization-chaser-train" python run.py --name="Chaser-DataAug-ColorJitter" --augment_obs=jitter --env=chaser
+WANDB_PROJECT="rl-generalization-chaser-train" python run.py --name="Chaser-DataAug-Cutout" --augment_obs=cutout --env=chaser
+WANDB_PROJECT="rl-generalization-chaser-train" python run.py --name="Chaser-DataAug-RandConv" --augment_obs=rand_conv --env=chaser

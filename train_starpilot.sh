@@ -30,3 +30,6 @@ WANDB_PROJECT="rl-generalization-starpilot-train-2" python run.py --name="Starpi
 WANDB_PROJECT="rl-generalization-starpilot-train-2" python run.py --name="Starpilot-Arch-Channels-d2" --arch=channels/2 --env=starpilot
 WANDB_PROJECT="rl-generalization-starpilot-train-2" python run.py --name="Starpilot-Arch-Channels-t2" --arch=channels*2 --env=starpilot
 WANDB_PROJECT="rl-generalization-starpilot-train-2" python run.py --name="Starpilot-Arch-IMPALA" --arch=impala --env=starpilot
+WANDB_PROJECT="rl-generalization-starpilot-train-2" python run.py --name="Starpilot-DataAug-ColorJitter" --augment_obs=jitter --env=starpilot
+WANDB_PROJECT="rl-generalization-starpilot-train-2" python run.py --name="Starpilot-DataAug-Cutout" --augment_obs=cutout --env=starpilot
+WANDB_PROJECT="rl-generalization-starpilot-train-2" python run.py --name="Starpilot-DataAug-RandConv" --augment_obs=rand_conv --env=starpilot
