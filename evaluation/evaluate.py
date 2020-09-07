@@ -91,7 +91,7 @@ def evaluate_generalization(m, impala=False):
         "dropout": dropout,
         "augment_obs": data_aug,
         "hidden_sizes": hidden_sizes,
-        "max_pooling": max_pooling,
+        "use_maxpool": max_pooling,
         "arch": arch,
     }
 
