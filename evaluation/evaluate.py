@@ -96,8 +96,14 @@ def evaluate_generalization(m, impala=False):
         "arch": arch,
     }
 
+    impala_kwargs = {
+        in_channels: [3, 16, 32],
+        out_channels: [16, 32, 32],
+        hidden_sizes: 512,
+    }
+
     if impala:
-        agent = ImpalaAgent(initial_model_state_dict=saved_params)
+        agent = ImpalaAgent(initial_model_state_dict=saved_params, model_kwargs=impala_kwargs)
     else:
         agent = OriginalNatureAgent(initial_model_state_dict=saved_params, model_kwargs=model_kwargs)
     num_levels = m['num_levels']
