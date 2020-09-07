@@ -21,9 +21,9 @@ if __name__ == "__main__":
 
   args = parser.parse_args()
 
-  models_to_evaluate = [vars(args)]
+  model_to_evaluate = vars(args)
 
-  evaluate_generalization(models_to_evaluate)
+  evaluate_generalization(model_to_evaluate)
 
   sys.exit(0)
         
