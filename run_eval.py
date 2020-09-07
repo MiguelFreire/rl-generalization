@@ -6,9 +6,6 @@ from evaluation import evaluate_generalization
 from argparse import ArgumentParser
 
 if __name__ == "__main__":
-  """ os.environ["WANDB_API_KEY"]="35f237a04eb1653cbff636ef3fab002be9f2e624"
-  os.environ["WANDB_ENTITY"]="miguelfreire"
-  os.environ["WANDB_PROJECT"]="generalization-rl-torch" """
   
   parser = ArgumentParser()
 
@@ -18,7 +15,7 @@ if __name__ == "__main__":
   parser.add_argument('--batchNorm', type=bool, default=False)
   parser.add_argument('--dropout', type=float, default=0.0)
   parser.add_argument('--augment_obs', type=str, default=None)
-  parser.add_argument('--hidden_sizes', type=int, default=512)
+  parser.add_argument('--hidden_sizes', nargs='+', type=int, default=[512])
   parser.add_argument('--max_pooling', type=bool, default=False)
   parser.add_argument('--arch', type=str, default="original")
   parser.add_argument('--env', type=str, default="coinrun")
