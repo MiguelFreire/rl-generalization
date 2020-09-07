@@ -35,7 +35,7 @@ def evaluate_in_training(agent, num_levels=500, seed=42069, env='procgen'):
             if done:
                 if info.level_complete:
                     levels[j] = True
-                env = make_env(num_levels=1, start_level=j, seed=seed)
+                env = make_env(num_levels=1, start_level=j, seed=seed, env=env)
                 obs = env.reset()
                 obs = torch.from_numpy(obs).unsqueeze(0)
         progress.update(j)
@@ -63,7 +63,7 @@ def evaluate_in_testing(agent, num_levels=5000, start_level=400000, seed=42069, 
             if done:
                 if info.level_complete:
                     levels[j] = True
-                env = make_env(num_levels=1, start_level=start_level+j, seed=seed)
+                env = make_env(num_levels=1, start_level=start_level+j, seed=seed, env=env)
                 obs = env.reset()
                 obs = torch.from_numpy(obs).unsqueeze(0)
         progress.update(j)
