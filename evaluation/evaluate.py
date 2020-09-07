@@ -104,11 +104,11 @@ def evaluate_generalization(m, impala=False):
     print("Evaluating Training - " + str(num_levels) + "Levels \n")
     train_winrate = evaluate_in_training(agent, num_levels, env=env)
     print("Evaluating Testing 1 \n")
-    test_winrate1 = evaluate_in_testing(agent, start_level=40000, num_levels=500,  env=env)
+    test_winrate1 = evaluate_in_testing(agent, start_level=40000, num_levels=5000,  env=env)
     print("Evaluating Testing 2 \n")
-    test_winrate2 = evaluate_in_testing(agent, start_level=50000, num_levels=500, env=env)
+    test_winrate2 = evaluate_in_testing(agent, start_level=50000, num_levels=5000, env=env)
     print("Evaluating Testing 3 \n")
-    test_winrate3 = evaluate_in_testing(agent, start_level=60000, num_levels=500, env=env)
+    test_winrate3 = evaluate_in_testing(agent, start_level=60000, num_levels=5000, env=env)
     
     test_winrate = np.array([test_winrate1, test_winrate2, test_winrate3])
 
