@@ -1,12 +1,11 @@
 import wandb
 import os
 import sys
-from evaluation import evaluate_generalization
+from evaluation.evaluate import evaluate_generalization
 
 from argparse import ArgumentParser
 
 if __name__ == "__main__":
-  
   parser = ArgumentParser()
 
   parser.add_argument('--name', type=str, default="Default Name")
