@@ -102,7 +102,7 @@ def evaluate_generalization(m, impala=False):
         agent = OriginalNatureAgent(initial_model_state_dict=saved_params, model_kwargs=model_kwargs)
     num_levels = m['num_levels']
     print("Evaluating Training - " + str(num_levels) + "Levels \n")
-    train_winrate = evaluate_in_training(agent, num_levels, env=m['env'])
+    train_winrate = evaluate_in_training(agent, num_levels, env=env)
     print("Evaluating Testing 1 \n")
     test_winrate1 = evaluate_in_testing(agent, start_level=40000, num_levels=500,  env=env)
     print("Evaluating Testing 2 \n")
