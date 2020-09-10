@@ -21,10 +21,8 @@ def make_env(*args, **kwargs):
     paint_vel_info=True
     seed=42069
     
-    if kwargs['env'] == 'chaser':
-      env_name = "procgen:procgen-chaser-v0"
-    elif kwargs['env'] == 'starpilot':
-      env_name = "procgen:procgen-starpilot-v0"
+    if "env" in kwargs:
+        env_name = "procgen:procgen-"+kwargs['env']+"-v0"
     else:
       env_name = "procgen:procgen-coinrun-v0"
     
