@@ -73,13 +73,21 @@ class Experiment:
         
         optim_args = dict(weight_decay=config["l2_penalty"]) if "l2_penalty" in config else None
 
-        algo = PPO(discount=config["discount"], entropy_loss_coeff=config["entropy_bonus"],
-            gae_lambda=config["lambda"], minibatches=config["minibatches_per_epoch"],
-            epochs=config["epochs_per_rollout"], ratio_clip=config["ppo_clip"],
-            learning_rate=config["learning_rate"], normalize_advantage=True, optim_kwargs=optim_args)
+        algo = PPO(
+                value_loss_coeff=0.5,
+                clip_grad_norm=0.5,
+                discount=config["discount"], 
+                entropy_loss_coeff=config["entropy_bonus"],
+                gae_lambda=config["lambda"], 
+                minibatches=config["minibatches_per_epoch"],
+                epochs=config["epochs_per_rollout"], 
+                ratio_clip=config["ppo_clip"],
+                learning_rate=config["learning_rate"], 
+                normalize_advantage=True, 
+                optim_kwargs=optim_args)
         
         if config["arch"] == 'impala':
-            agent = ImpalaAgent(model_kwargs={"in_channels": [3,16,32], "out_channels": [16,32,32], "hidden_size": config["hidden_sizes"][0]})
+            agent = ImpalaAgent(model_kwargs={"in_channels": [3,16,32], "out_channels": [16,32,32], "hidden_size": 256})
         else:
             agent = OriginalNatureAgent(model_kwargs={"batchNorm": config["batchNorm"], "dropout": config["dropout"], "augment_obs": config["augment_obs"], "use_maxpool": config["maxpool"], "hidden_sizes": config["hidden_sizes"], "arch": config["arch"]})
         
