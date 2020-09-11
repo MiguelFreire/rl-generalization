@@ -24,7 +24,7 @@ def make_env(*args, **kwargs):
     if "env" in kwargs:
         env_name = "procgen:procgen-"+kwargs['env']+"-v0"
     else:
-      env_name = "procgen:procgen-coinrun-v0"
+        env_name = "procgen:procgen-coinrun-v0"
     
     start_level = kwargs["start_level"] if "start_level" in kwargs else 0
 
