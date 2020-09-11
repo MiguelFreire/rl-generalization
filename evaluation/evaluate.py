@@ -97,9 +97,9 @@ def evaluate_generalization(m, impala=False):
     }
 
     impala_kwargs = {
-        in_channels: [3, 16, 32],
-        out_channels: [16, 32, 32],
-        hidden_sizes: 512,
+        "in_channels": [3, 16, 32],
+        "out_channels": [16, 32, 32],
+        "hidden_sizes": 256,
     }
 
     if impala:
