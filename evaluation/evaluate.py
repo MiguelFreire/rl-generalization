@@ -21,51 +21,54 @@ def evaluate_in_training(agent, num_levels=500, seed=42069, env_name='procgen'):
     agent.initialize(env.spaces)
     agent.eval_mode(0)
     levels = [False for i in range(num_levels)]
-    obs, _, _, _ = env.step(-1)
-    obs = torch.from_numpy(obs).unsqueeze(0)
+
     progress = ProgBarCounter(num_levels)
     prev_action = torch.tensor(0.0, dtype=torch.float) #None
     prev_reward = torch.tensor(0.0, dtype=torch.float) #None
     for j in range(num_levels):
+        env = make_env(num_levels=1, start_level=j, seed=seed, env=env_name)
         done = False
-        while not done:
-            step = agent.step(obs, prev_action, prev_reward)
-            obs, rewards, done, info = env.step(step.action)
-            obs = torch.from_numpy(obs).unsqueeze(0)
-            if done:
-                if info.level_complete:
-                    levels[j] = True
-                env = make_env(num_levels=1, start_level=j, seed=seed, env=env_name)
-                obs, _, _, _ = env.step(-1)
-                obs = torch.from_numpy(obs).unsqueeze(0)
+        obs, _, _, info = env.step(-1)
+        obs = torch.from_numpy(obs).unsqueeze(0)
+        
+        while True:
+          if done:
+            if info.prev_level_complete:
+              levels[j] = True
+            break
+          step = agent.step(obs, prev_action, prev_reward)
+          obs, rewards, done, info = env.step(step.action)
+          obs = torch.from_numpy(obs).unsqueeze(0)
+        
         progress.update(j)
     progress.stop()
     
     return calculateWinRate(levels)
 
 def evaluate_in_testing(agent, num_levels=5000, start_level=400000, seed=42069, env_name='procgen'):
-    env = make_env(num_levels=1, start_level=start_level, seed=seed, env=env_name)
+   env = make_env(num_levels=1, start_level=start_level, seed=seed, env=env_name)
     agent.initialize(env.spaces)
     agent.eval_mode(0)
     levels = [False for i in range(num_levels)]
-    obs, _, _, _ = env.step(-1)
-    obs = torch.from_numpy(obs).unsqueeze(0)
-    progress = ProgBarCounter(num_levels)
 
+    progress = ProgBarCounter(num_levels)
     prev_action = torch.tensor(0.0, dtype=torch.float) #None
     prev_reward = torch.tensor(0.0, dtype=torch.float) #None
     for j in range(num_levels):
+        env = make_env(num_levels=1, start_level=start_level+j, seed=seed, env=env_name)
         done = False
-        while not done:
-            step = agent.step(obs, prev_action, prev_reward)
-            obs, rewards, done, info = env.step(step.action)
-            obs = torch.from_numpy(obs).unsqueeze(0)
-            if done:
-                if info.level_complete:
-                    levels[j] = True
-                env = make_env(num_levels=1, start_level=start_level+j, seed=seed, env=env_name)
-                obs, _, _, _ = env.step(-1)
-                obs = torch.from_numpy(obs).unsqueeze(0)
+        obs, _, _, info = env.step(-1)
+        obs = torch.from_numpy(obs).unsqueeze(0)
+        
+        while True:
+          if done:
+            if info.prev_level_complete:
+              levels[j] = True
+            break
+          step = agent.step(obs, prev_action, prev_reward)
+          obs, rewards, done, info = env.step(step.action)
+          obs = torch.from_numpy(obs).unsqueeze(0)
+        
         progress.update(j)
     progress.stop()
     
