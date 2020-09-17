@@ -46,7 +46,7 @@ def evaluate_in_training(agent, num_levels=500, seed=42069, env_name='procgen'):
     return calculateWinRate(levels)
 
 def evaluate_in_testing(agent, num_levels=5000, start_level=400000, seed=42069, env_name='procgen'):
-   env = make_env(num_levels=1, start_level=start_level, seed=seed, env=env_name)
+    env = make_env(num_levels=1, start_level=start_level, seed=seed, env=env_name)
     agent.initialize(env.spaces)
     agent.eval_mode(0)
     levels = [False for i in range(num_levels)]
@@ -59,7 +59,7 @@ def evaluate_in_testing(agent, num_levels=5000, start_level=400000, seed=42069, 
         done = False
         obs, _, _, info = env.step(-1)
         obs = torch.from_numpy(obs).unsqueeze(0)
-        
+
         while True:
           if done:
             if info.prev_level_complete:
@@ -68,10 +68,10 @@ def evaluate_in_testing(agent, num_levels=5000, start_level=400000, seed=42069, 
           step = agent.step(obs, prev_action, prev_reward)
           obs, rewards, done, info = env.step(step.action)
           obs = torch.from_numpy(obs).unsqueeze(0)
-        
+
         progress.update(j)
     progress.stop()
-    
+
     return calculateWinRate(levels)
 
 def evaluate_generalization(m, impala=False):
