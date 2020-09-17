@@ -12,7 +12,6 @@ class ProcgenWrapper(GymEnvWrapper):
     def __init__(self, env,
           act_null_value=0, obs_null_value=0, force_float32=True):
       super().__init__(env)
-      o = self.env.reset()
       o, r, d, info = self.env.step(self.env.action_space.sample())
       env_ = self.env
       time_limit = isinstance(self.env, TimeLimit)
