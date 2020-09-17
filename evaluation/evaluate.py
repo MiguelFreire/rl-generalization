@@ -21,7 +21,7 @@ def evaluate_in_training(agent, num_levels=500, seed=42069, env_name='procgen'):
     agent.initialize(env.spaces)
     agent.eval_mode(0)
     levels = [False for i in range(num_levels)]
-    obs = env.reset()
+    obs, _, _, _ = env.step(-1)
     obs = torch.from_numpy(obs).unsqueeze(0)
     progress = ProgBarCounter(num_levels)
     prev_action = torch.tensor(0.0, dtype=torch.float) #None
@@ -36,7 +36,7 @@ def evaluate_in_training(agent, num_levels=500, seed=42069, env_name='procgen'):
                 if info.level_complete:
                     levels[j] = True
                 env = make_env(num_levels=1, start_level=j, seed=seed, env=env_name)
-                obs = env.reset()
+                obs, _, _, _ = env.step(-1)
                 obs = torch.from_numpy(obs).unsqueeze(0)
         progress.update(j)
     progress.stop()
@@ -48,7 +48,7 @@ def evaluate_in_testing(agent, num_levels=5000, start_level=400000, seed=42069, 
     agent.initialize(env.spaces)
     agent.eval_mode(0)
     levels = [False for i in range(num_levels)]
-    obs = env.reset()
+    obs, _, _, _ = env.step(-1)
     obs = torch.from_numpy(obs).unsqueeze(0)
     progress = ProgBarCounter(num_levels)
 
@@ -64,7 +64,7 @@ def evaluate_in_testing(agent, num_levels=5000, start_level=400000, seed=42069, 
                 if info.level_complete:
                     levels[j] = True
                 env = make_env(num_levels=1, start_level=start_level+j, seed=seed, env=env_name)
-                obs = env.reset()
+                obs, _, _, _ = env.step(-1)
                 obs = torch.from_numpy(obs).unsqueeze(0)
         progress.update(j)
     progress.stop()
