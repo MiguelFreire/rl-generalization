@@ -57,10 +57,13 @@ class ProcgenWrapper(GymEnvWrapper):
         if isinstance(r, float):
             r = np.dtype("float32").type(r)  # Scalar float32.
         return EnvStep(obs, r, d, info)
+    
     def reset(self):
         """Returns converted observation from gym env reset."""
         return self.observation_space.convert(self.env.reset().transpose((2, 0, 1)))
-
+    
+    def seed(self, seed):
+            return
       
 def make_env(*args, **kwargs):
     num_levels = kwargs['num_levels']
