@@ -7,6 +7,8 @@ from experiments.experiment import make_env
 from rlpyt.utils.prog_bar import ProgBarCounter
 import pandas
 import numpy as np
+import multiprocessing as mp
+
 
 def calculateWinRate(levels_outcome):
     wins = 0
@@ -73,7 +75,14 @@ def evaluate_in_testing(agent, num_levels=5000, start_level=400000, seed=42069, 
     progress.stop()
 
     return calculateWinRate(levels)
-
+  
+  
+def evaluate(i, agent, num_levels=200, start_level=0, env_name="procgen"):
+  if start_level == 0: #evaluate training
+    return (i, evaluate_in_training(agent, num_levels, env_name=env_name))
+  else:
+    return (i, evaluate_in_testing(agent, start_level=start_level, num_levels=num_levels,  env_name=env_name))
+    
 def evaluate_generalization(m, impala=False):
     data = []
     wandb.init(name=m['name'])
@@ -110,27 +119,29 @@ def evaluate_generalization(m, impala=False):
     else:
         agent = OriginalNatureAgent(initial_model_state_dict=saved_params, model_kwargs=model_kwargs)
     num_levels = m['num_levels']
-    print("Evaluating Training - " + str(num_levels) + "Levels \n")
-    train_winrate = evaluate_in_training(agent, num_levels, env_name=env)
-    print("Evaluating Testing 1 \n")
-    test_winrate1 = evaluate_in_testing(agent, start_level=40000, num_levels=5000,  env_name=env)
-    print("Evaluating Testing 2 \n")
-    test_winrate2 = evaluate_in_testing(agent, start_level=50000, num_levels=5000, env_name=env)
-    print("Evaluating Testing 3 \n")
-    test_winrate3 = evaluate_in_testing(agent, start_level=60000, num_levels=5000, env_name=env)
     
-    test_winrate = np.array([test_winrate1, test_winrate2, test_winrate3])
-
-    std = np.std(test_winrate)
-    avg = np.average(test_winrate)
-    wandb.log({
-        "Train": train_winrate,
-        "Test 1": test_winrate1,
-        "Test 2": test_winrate2,
-        "Test 3": test_winrate3,
-        "Test Std": std,
-        "Test Avg": avg,
-    })
-
-    #return pandas.DataFrame(data=data, index=[n['model_name'] for n in models_to_evaluate], columns=['Train', 'Test_1', 'Test_2', 'Test_3', 'Test_Std', 'Test_Avg'])
+    with mp.Pool(mp.cpu_count()) as pool:
+        params = [
+          (0, agent, num_levels, 0, env)
+          (1, agent, 5000, 40000, env)
+          (2, agent, 5000, 50000, env)
+          (3, agent, 5000, 60000, env)
+        ]
+    
+        results = [pool.apply_async(evaluate, p) for p in params]
+        r = list(map(lambda x: x.get(), results))
+        r.sort(key=lambda x: x[0]) #sort just to be sure
+        train_winrate = r[0]
+        test_winrate = np.array([r[1], r[2], r[3]])
+        std = np.std(test_winrate)
+        avg = np.average(test_winrate)   
+        wandb.log({
+          "Train": train_winrate,
+          "Test 1": test_winrate1,
+          "Test 2": test_winrate2,
+          "Test 3": test_winrate3,
+          "Test Std": std,
+          "Test Avg": avg,
+        })
+    
     return
