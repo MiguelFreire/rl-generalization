@@ -19,6 +19,7 @@ def calculateWinRate(levels_outcome):
 
 
 def evaluate_in_training(agent, num_levels=500, seed=42069, env_name='procgen'):
+    print("Evaluating in training")
     env = make_env(num_levels=1, start_level=0, seed=seed, env=env_name)
     agent.initialize(env.spaces)
     agent.eval_mode(0)
@@ -48,6 +49,7 @@ def evaluate_in_training(agent, num_levels=500, seed=42069, env_name='procgen'):
     return calculateWinRate(levels)
 
 def evaluate_in_testing(agent, num_levels=5000, start_level=400000, seed=42069, env_name='procgen'):
+    print("Evaluating in testing")
     env = make_env(num_levels=1, start_level=start_level, seed=seed, env=env_name)
     agent.initialize(env.spaces)
     agent.eval_mode(0)
@@ -129,20 +131,20 @@ def evaluate_generalization(m, impala=False):
         ]
     
         results = [pool.apply_async(evaluate, p) for p in params]
-        
-    r = [res.get() for res in results]
-    r.sort(key=lambda x: x[0]) #sort just to be sure
-    train_winrate = r[0]
-    test_winrate = np.array([r[1], r[2], r[3]])
-    std = np.std(test_winrate)
-    avg = np.average(test_winrate)   
-    wandb.log({
-      "Train": train_winrate,
-      "Test 1": test_winrate1,
-      "Test 2": test_winrate2,
-      "Test 3": test_winrate3,
-      "Test Std": std,
-      "Test Avg": avg,
-    })
+
+        r = [res.get() for res in results]
+        r.sort(key=lambda x: x[0]) #sort just to be sure
+        train_winrate = r[0]
+        test_winrate = np.array([r[1], r[2], r[3]])
+        std = np.std(test_winrate)
+        avg = np.average(test_winrate)   
+        wandb.log({
+          "Train": train_winrate,
+          "Test 1": test_winrate1,
+          "Test 2": test_winrate2,
+          "Test 3": test_winrate3,
+          "Test Std": std,
+          "Test Avg": avg,
+        })
     
     return
