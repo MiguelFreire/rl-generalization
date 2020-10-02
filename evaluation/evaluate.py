@@ -158,9 +158,9 @@ def evaluate_generalization(m, impala=False):
     avg = np.average(test_winrate)   
     wandb.log({
       "Train": train_winrate,
-      "Test 1": test_winrate1,
-      "Test 2": test_winrate2,
-      "Test 3": test_winrate3,
+      "Test 1": test_winrate[0],
+      "Test 2": test_winrate[1],
+      "Test 3": test_winrate[2],
       "Test Std": std,
       "Test Avg": avg,
     })
