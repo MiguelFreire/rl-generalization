@@ -122,9 +122,9 @@ def evaluate_generalization(m, impala=False):
     
     with mp.Pool(mp.cpu_count()) as pool:
         params = [
-          (0, agent, num_levels, 0, env)
-          (1, agent, 5000, 40000, env)
-          (2, agent, 5000, 50000, env)
+          (0, agent, num_levels, 0, env),
+          (1, agent, 5000, 40000, env),
+          (2, agent, 5000, 50000, env),
           (3, agent, 5000, 60000, env)
         ]
     
