@@ -79,7 +79,8 @@ def evaluate_in_testing(agent, num_levels=5000, start_level=400000, seed=42069, 
     return calculateWinRate(levels)
   
   
-def evaluate(i, agent, num_levels=200, start_level=0, env_name="procgen"):
+def evaluate(i, num_levels=200, start_level=0, env_name="procgen", saved_params={}, model_kwargs={}, impala=False):
+  agent = ImpalaAgent(initial_model_state_dict=saved_params, model_kwargs=model_kwargs) if impala else OriginalNatureAgent(initial_model_state_dict=saved_params, model_kwargs=model_kwargs
   if start_level == 0: #evaluate training
     return (i, evaluate_in_training(agent, num_levels, env_name=env_name))
   else:
@@ -108,26 +109,20 @@ def evaluate_generalization(m, impala=False):
         "hidden_sizes": hidden_sizes,
         "use_maxpool": max_pooling,
         "arch": arch,
-    }
-
-    impala_kwargs = {
+    } if not impala else {
         "in_channels": [3, 16, 32],
         "out_channels": [16, 32, 32],
         "hidden_sizes": 256,
     }
 
-    if impala:
-        agent = [ImpalaAgent(initial_model_state_dict=saved_params, model_kwargs=impala_kwargs) for _ in range(4)]
-    else:
-        agent = [OriginalNatureAgent(initial_model_state_dict=saved_params, model_kwargs=model_kwargs) for _ in range(4)]
     num_levels = m['num_levels']
     
     with mp.Pool(mp.cpu_count()) as pool:
         params = [
-          (0, agent[0], num_levels, 0, env),
-          (1, agent[1], 5000, 40000, env),
-          (2, agent[2], 5000, 50000, env),
-          (3, agent[3], 5000, 60000, env)
+          (0, num_levels, 0, env, saved_params, model_kwargs, impala),
+          (1, 5000, 40000, env, saved_params, model_kwargs, impala),
+          (2, 5000, 50000, env, saved_params, model_kwargs, impala),
+          (3, 5000, 60000, env, saved_params, model_kwargs, impala)
         ]
     
         results = [pool.apply_async(evaluate, p) for p in params]
