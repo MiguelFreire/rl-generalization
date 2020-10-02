@@ -118,7 +118,7 @@ def evaluate_generalization(m, impala=False):
         agent = OriginalNatureAgent(initial_model_state_dict=saved_params, model_kwargs=model_kwargs)
     num_levels = m['num_levels']
 
-    dummy_env = make_env(num_levels=1, start_level=0, env=env_name)
+    dummy_env = make_env(num_levels=1, start_level=0, env=env)
     agent.initialize(dummy_env.spaces, share_memory=True)
     agent.eval_mode(0)
     with mp.Pool(mp.cpu_count()) as pool:
