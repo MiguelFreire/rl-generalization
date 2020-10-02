@@ -117,17 +117,17 @@ def evaluate_generalization(m, impala=False):
     }
 
     if impala:
-        agent = ImpalaAgent(initial_model_state_dict=saved_params, model_kwargs=impala_kwargs)
+        agent = [ImpalaAgent(initial_model_state_dict=saved_params, model_kwargs=impala_kwargs) for _ in range(4)]
     else:
-        agent = OriginalNatureAgent(initial_model_state_dict=saved_params, model_kwargs=model_kwargs)
+        agent = [OriginalNatureAgent(initial_model_state_dict=saved_params, model_kwargs=model_kwargs) for _ in range(4)]
     num_levels = m['num_levels']
     
     with mp.Pool(mp.cpu_count()) as pool:
         params = [
-          (0, agent, num_levels, 0, env),
-          (1, agent, 5000, 40000, env),
-          (2, agent, 5000, 50000, env),
-          (3, agent, 5000, 60000, env)
+          (0, agent[0], num_levels, 0, env),
+          (1, agent[1], 5000, 40000, env),
+          (2, agent[2], 5000, 50000, env),
+          (3, agent[3], 5000, 60000, env)
         ]
     
         results = [pool.apply_async(evaluate, p) for p in params]
