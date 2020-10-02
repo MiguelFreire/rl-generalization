@@ -21,8 +21,6 @@ def calculateWinRate(levels_outcome):
 def evaluate_in_training(agent, num_levels=500, seed=42069, env_name='procgen'):
     print("Evaluating in training")
     env = make_env(num_levels=1, start_level=0, seed=seed, env=env_name)
-    agent.initialize(env.spaces, share_memory=True)
-    agent.eval_mode(0)
     levels = [False for i in range(num_levels)]
 
     progress = ProgBarCounter(num_levels)
@@ -51,8 +49,6 @@ def evaluate_in_training(agent, num_levels=500, seed=42069, env_name='procgen'):
 def evaluate_in_testing(agent, num_levels=5000, start_level=400000, seed=42069, env_name='procgen'):
     print("Evaluating in testing")
     env = make_env(num_levels=1, start_level=start_level, seed=seed, env=env_name)
-    agent.initialize(env.spaces, share_memory=True)
-    agent.eval_mode(0)
     levels = [False for i in range(num_levels)]
 
     progress = ProgBarCounter(num_levels)
@@ -121,7 +117,10 @@ def evaluate_generalization(m, impala=False):
     else:
         agent = OriginalNatureAgent(initial_model_state_dict=saved_params, model_kwargs=model_kwargs)
     num_levels = m['num_levels']
-    
+
+    dummy_env = make_env(num_levels=1, start_level=0, env=env_name)
+    agent.initialize(dummy_env.spaces, share_memory=True)
+    agent.eval_mode(0)
     with mp.Pool(mp.cpu_count()) as pool:
         params = [
           (0, agent, num_levels, 0, env),
