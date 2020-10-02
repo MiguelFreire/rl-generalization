@@ -129,7 +129,7 @@ def evaluate_generalization(m, impala=False):
         ]
     
         results = [pool.apply_async(evaluate, p) for p in params]
-        r = list(map(lambda x: x.get(), results))
+        r = [res.get() for res in results]
         r.sort(key=lambda x: x[0]) #sort just to be sure
         train_winrate = r[0]
         test_winrate = np.array([r[1], r[2], r[3]])
