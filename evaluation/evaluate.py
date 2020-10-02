@@ -7,7 +7,7 @@ from experiments.experiment import make_env
 from rlpyt.utils.prog_bar import ProgBarCounter
 import pandas
 import numpy as np
-import torch.multiprocessing as mp
+import multiprocessing as mp
 
 
 def calculateWinRate(levels_outcome):
@@ -21,7 +21,7 @@ def calculateWinRate(levels_outcome):
 def evaluate_in_training(agent, num_levels=500, seed=42069, env_name='procgen'):
     print("Evaluating in training")
     env = make_env(num_levels=1, start_level=0, seed=seed, env=env_name)
-    agent.initialize(env.spaces)
+    agent.initialize(env.spaces, share_memory=True)
     agent.eval_mode(0)
     levels = [False for i in range(num_levels)]
 
@@ -51,7 +51,7 @@ def evaluate_in_training(agent, num_levels=500, seed=42069, env_name='procgen'):
 def evaluate_in_testing(agent, num_levels=5000, start_level=400000, seed=42069, env_name='procgen'):
     print("Evaluating in testing")
     env = make_env(num_levels=1, start_level=start_level, seed=seed, env=env_name)
-    agent.initialize(env.spaces)
+    agent.initialize(env.spaces, share_memory=True)
     agent.eval_mode(0)
     levels = [False for i in range(num_levels)]
 
@@ -79,11 +79,7 @@ def evaluate_in_testing(agent, num_levels=5000, start_level=400000, seed=42069, 
     return calculateWinRate(levels)
   
   
-def evaluate(i, num_levels=200, start_level=0, env_name="procgen", saved_params={}, model_kwargs={}, impala=False):
-  if impala:
-    agent = ImpalaAgent(initial_model_state_dict=saved_params, model_kwargs=model_kwargs)
-  else:
-    agent = OriginalNatureAgent(initial_model_state_dict=saved_params, model_kwargs=model_kwargs)
+def evaluate(i, agent, num_levels=200, start_level=0, env_name="procgen"):
   if start_level == 0: #evaluate training
     return (i, evaluate_in_training(agent, num_levels, env_name=env_name))
   else:
@@ -92,7 +88,7 @@ def evaluate(i, num_levels=200, start_level=0, env_name="procgen", saved_params=
 def evaluate_generalization(m, impala=False):
     data = []
     wandb.init(name=m['name'])
-
+    mp.set_start_method('spawn')
     
     print("Evaluation " + m['name'] + "\n")
     saved_params = torch.load(os.getcwd() + m['path'])
@@ -112,21 +108,26 @@ def evaluate_generalization(m, impala=False):
         "hidden_sizes": hidden_sizes,
         "use_maxpool": max_pooling,
         "arch": arch,
-    } if not impala else {
+    }
+
+    impala_kwargs = {
         "in_channels": [3, 16, 32],
         "out_channels": [16, 32, 32],
         "hidden_sizes": 256,
     }
 
+    if impala:
+        agent = ImpalaAgent(initial_model_state_dict=saved_params, model_kwargs=impala_kwargs)
+    else:
+        agent = OriginalNatureAgent(initial_model_state_dict=saved_params, model_kwargs=model_kwargs)
     num_levels = m['num_levels']
     
     with mp.Pool(mp.cpu_count()) as pool:
-        mp.set_start_method('spawn', force=True)
         params = [
-          (0, num_levels, 0, env, saved_params, model_kwargs, impala),
-          (1, 5000, 40000, env, saved_params, model_kwargs, impala),
-          (2, 5000, 50000, env, saved_params, model_kwargs, impala),
-          (3, 5000, 60000, env, saved_params, model_kwargs, impala)
+          (0, agent, num_levels, 0, env),
+          (1, agent, 5000, 40000, env),
+          (2, agent, 5000, 50000, env),
+          (3, agent, 5000, 60000, env)
         ]
     
         results = [pool.apply_async(evaluate, p) for p in params]
