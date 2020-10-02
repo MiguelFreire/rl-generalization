@@ -143,11 +143,12 @@ def evaluate_generalization(m, impala=False):
       p = mp.Process(target=evaluate, args=param)
       p.start()
       processes.append(p)
-      results.append(q.get())
 
     for p in processes:
       p.join()
 
+    for i in params:
+      results.append(q.get())
     
     results.sort(key=lambda x: x[0])
 
