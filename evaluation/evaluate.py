@@ -75,16 +75,19 @@ def evaluate_in_testing(agent, num_levels=5000, start_level=400000, seed=42069, 
     return calculateWinRate(levels)
   
   
-def evaluate(i, agent, num_levels=200, start_level=0, env_name="procgen"):
+def evaluate(i, agent, num_levels=200, start_level=0, env_name="procgen", q):
   if start_level == 0: #evaluate training
-    return (i, evaluate_in_training(agent, num_levels, env_name=env_name))
+    result = (i, evaluate_in_training(agent, num_levels, env_name=env_name))
+    q.put(result)
+    return result
   else:
-    return (i, evaluate_in_testing(agent, start_level=start_level, num_levels=num_levels,  env_name=env_name))
+    result = (i, evaluate_in_testing(agent, start_level=start_level, num_levels=num_levels,  env_name=env_name))
+    q.put(result)
+    return result
     
 def evaluate_generalization(m, impala=False):
     data = []
     wandb.init(name=m['name'])
-    mp.set_start_method('spawn')
     
     print("Evaluation " + m['name'] + "\n")
     saved_params = torch.load(os.getcwd() + m['path'])
@@ -121,29 +124,42 @@ def evaluate_generalization(m, impala=False):
     dummy_env = make_env(num_levels=1, start_level=0, env=env)
     agent.initialize(dummy_env.spaces, share_memory=True)
     agent.eval_mode(0)
-    with mp.Pool(mp.cpu_count()) as pool:
-        params = [
-          (0, agent, num_levels, 0, env),
-          (1, agent, 5000, 40000, env),
-          (2, agent, 5000, 50000, env),
-          (3, agent, 5000, 60000, env)
-        ]
-    
-        results = [pool.apply_async(evaluate, p) for p in params]
 
-        r = [res.get() for res in results]
-        r.sort(key=lambda x: x[0]) #sort just to be sure
-        train_winrate = r[0]
-        test_winrate = np.array([r[1], r[2], r[3]])
-        std = np.std(test_winrate)
-        avg = np.average(test_winrate)   
-        wandb.log({
-          "Train": train_winrate,
-          "Test 1": test_winrate1,
-          "Test 2": test_winrate2,
-          "Test 3": test_winrate3,
-          "Test Std": std,
-          "Test Avg": avg,
-        })
+    mp.set_start_method('spawn')
+    q = mp.Queue()
+
+    params = [
+          (0, agent, num_levels, 0, env, q),
+          (1, agent, 5000, 40000, env, q),
+          (2, agent, 5000, 50000, env, q),
+          (3, agent, 5000, 60000, env, q)
+        ]
+
+    processes = []
+    results = []
+    for param in params:
+      p = mp.Process(target=evaluate, args=param)
+      p.start()
+      processes.append(p)
+      results.append(q.get())
+
+    for p in processes:
+      p.join()
+
+    
+    results.sort(key=lambda x: x[0])
+
+    train_winrate = results[0][1]
+    test_winrate = np.array([r[1][1], r[2][1], r[3][1]])
+    std = np.std(test_winrate)
+    avg = np.average(test_winrate)   
+    wandb.log({
+      "Train": train_winrate,
+      "Test 1": test_winrate1,
+      "Test 2": test_winrate2,
+      "Test 3": test_winrate3,
+      "Test Std": std,
+      "Test Avg": avg,
+    })
     
     return
