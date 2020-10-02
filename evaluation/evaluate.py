@@ -7,7 +7,7 @@ from experiments.experiment import make_env
 from rlpyt.utils.prog_bar import ProgBarCounter
 import pandas
 import numpy as np
-import multiprocessing as mp
+import torch.multiprocessing as mp
 
 
 def calculateWinRate(levels_outcome):
@@ -121,7 +121,7 @@ def evaluate_generalization(m, impala=False):
     num_levels = m['num_levels']
     
     with mp.Pool(mp.cpu_count()) as pool:
-        mp.set_start_method('spawn')
+        mp.set_start_method('spawn', force=True)
         params = [
           (0, num_levels, 0, env, saved_params, model_kwargs, impala),
           (1, 5000, 40000, env, saved_params, model_kwargs, impala),
