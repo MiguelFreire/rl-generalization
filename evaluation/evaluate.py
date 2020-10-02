@@ -127,7 +127,7 @@ def evaluate_generalization(m, impala=False):
     agent.initialize(dummy_env.spaces, share_memory=True)
     agent.eval_mode(0)
 
-    mp.set_start_method('spawn')
+    mp.set_start_method('spawn', force=True)
     q = mp.Queue()
 
     params = [
