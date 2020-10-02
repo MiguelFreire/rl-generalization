@@ -80,7 +80,10 @@ def evaluate_in_testing(agent, num_levels=5000, start_level=400000, seed=42069, 
   
   
 def evaluate(i, num_levels=200, start_level=0, env_name="procgen", saved_params={}, model_kwargs={}, impala=False):
-  agent = ImpalaAgent(initial_model_state_dict=saved_params, model_kwargs=model_kwargs) if impala else OriginalNatureAgent(initial_model_state_dict=saved_params, model_kwargs=model_kwargs
+  if impala:
+    agent = ImpalaAgent(initial_model_state_dict=saved_params, model_kwargs=model_kwargs)
+  else:
+    agent = OriginalNatureAgent(initial_model_state_dict=saved_params, model_kwargs=model_kwargs)
   if start_level == 0: #evaluate training
     return (i, evaluate_in_training(agent, num_levels, env_name=env_name))
   else:
