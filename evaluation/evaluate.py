@@ -132,9 +132,9 @@ def evaluate_generalization(m, impala=False):
 
     params = [
           (0, agent, num_levels, 0, env, q),
-          (1, agent, 5000, 40000, env, q),
-          (2, agent, 5000, 50000, env, q),
-          (3, agent, 5000, 60000, env, q)
+          (1, agent, 500, 40000, env, q),
+          (2, agent, 500, 50000, env, q),
+          (3, agent, 500, 60000, env, q)
         ]
 
     processes = []
