@@ -75,7 +75,7 @@ def evaluate_in_testing(agent, num_levels=5000, start_level=400000, seed=42069, 
     return calculateWinRate(levels)
   
   
-def evaluate(i, agent, num_levels=200, start_level=0, env_name="procgen", q):
+def evaluate(i, agent, num_levels=200, start_level=0, env_name="procgen", q=None):
   if start_level == 0: #evaluate training
     result = (i, evaluate_in_training(agent, num_levels, env_name=env_name))
     q.put(result)
