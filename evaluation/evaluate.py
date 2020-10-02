@@ -153,7 +153,7 @@ def evaluate_generalization(m, impala=False):
     results.sort(key=lambda x: x[0])
 
     train_winrate = results[0][1]
-    test_winrate = np.array([r[1][1], r[2][1], r[3][1]])
+    test_winrate = np.array([results[1][1], results[2][1], results[3][1]])
     std = np.std(test_winrate)
     avg = np.average(test_winrate)   
     wandb.log({
