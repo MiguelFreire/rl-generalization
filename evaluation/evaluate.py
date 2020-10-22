@@ -78,7 +78,7 @@ def evaluate(i, agent, num_levels=200, start_level=0, env_name="procgen", q=None
       q.put(result)
     return result
     
-def evaluate_generalization(m, impala=False):
+def evaluate_generalization(m):
     data = []
     wandb.init(name=m['name'])
     
@@ -92,7 +92,8 @@ def evaluate_generalization(m, impala=False):
     max_pooling = m['max_pooling'] if "max_pooling" in m else False
     arch = m['arch'] if "arch" in m else "original"
     env = m['env'] if "env" in m else "coinrun"
-
+    impala = arch == 'impala'
+    
     model_kwargs = {
         "batchNorm": batchNorm,
         "dropout": dropout,
