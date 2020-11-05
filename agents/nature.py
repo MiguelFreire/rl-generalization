@@ -3,6 +3,11 @@ from rlpyt.agents.pg.categorical import CategoricalPgAgent
 from models.nature import NatureCNNModel
 from models.nature_attention import NatureAttention, NatureSelfAttention
 from rlpyt.agents.pg.atari import AtariMixin
+from rlpyt.utils.buffer import buffer_to, buffer_func, buffer_method
+from rlpyt.distributions.categorical import Categorical, DistInfo
+from rlpyt.agents.base import (AgentStep, BaseAgent, RecurrentAgentMixin,
+    AlternatingRecurrentAgentMixin)
+from rlpyt.agents.pg.base import AgentInfo, AgentInfoRnn
 #Agent that uses CNNNature with 2 heads to parametrize policy and value functions
 class OriginalNatureAgent(AtariMixin, CategoricalPgAgent):
       def __init__(self, **kwargs):
