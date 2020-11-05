@@ -130,7 +130,7 @@ class ImpalaModel(torch.nn.Module):
         #value function head 
         self.value = torch.nn.Linear(self.conv.output_size, 1)
 
-    def forward(self, image, prev_action, prev_reward):
+    def forward(self, image, prev_action=None, prev_reward=None):
         #input normalization, cast to float then grayscale it
         img = image.type(torch.float)
         img = img.mul_(1. / 255)

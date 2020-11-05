@@ -79,7 +79,7 @@ class NatureCNNModel(torch.nn.Module):
         self.apply(weights_initializer)
             
             
-    def forward(self, image, prev_action, prev_reward):
+    def forward(self, image, prev_action=None, prev_reward=None):
         #input normalization, cast to float then grayscale it
         img = image.type(torch.float)
         img = img.mul_(1. / 255)

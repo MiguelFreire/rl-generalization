@@ -87,7 +87,7 @@ def evaluate_generalization(m):
     
     batchNorm = m['batchNorm'] if "batchNorm" in m else False
     dropout = m['dropout'] if "dropout" in m else 0.0
-    data_aug= m['data_aug'] if "data_aug" in m else None
+    data_aug= m['augment_obs'] if "augment_obs" in m else None
     hidden_sizes = m['hidden_sizes'] if "hidden_sizes" in m else [512]
     max_pooling = m['max_pooling'] if "max_pooling" in m else False
     arch = m['arch'] if "arch" in m else "original"
