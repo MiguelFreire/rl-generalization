@@ -1,6 +1,28 @@
 import torch
 
+from models.nature import NatureCNNModel
+from models.impala import ImpalaModel
 
+class NatureAttention(NatureCNNModel):
+    def forward(self, x):
+        conv = self.conv.conv.conv
+        softmax = torch.nn.Softmax2d()
+        g0 = conv[1](conv[0](x))
+        g1 = conv[3](conv[2](g0))
+        g2 = conv[5](conv[4](g1))
+        
+        return [g.pow(2).mean(1) for g in (g0, g1, g2)]
+      
+class ImpalaAttention(ImpalaModel):
+    def forward(self, x):
+        conv = imp.conv.conv.blocks
+        softmax = torch.nn.Softmax2d()
+        g0 = conv[0](x)
+        g1 = conv[1](g0)
+        g2 = conv[2](g1)
+        
+        return [g.pow(2).mean(1) for g in (g0, g1, g2)]
+      
 class SelfAttention(torch.nn.Module):
   def __init__(self, in_channels):
     super().__init__()
