@@ -124,53 +124,53 @@ class NatureCNNModel(torch.nn.Module):
     
 RnnState = namedarraytuple("RnnState", ["h", "c"])
 class NatureLSTMModel(torch.nn.Module):
-   def __init__(self, 
+    def __init__(self, 
                image_shape, output_size, hidden_sizes=[512],
                 lstm_size=256
               ):
-      super().__init__()
-      channels=[32,64,64]
-      kernel_sizes=[8,4,3]
-      strides=[4,3,1]
-      paddings=[0,0,1]
+        super().__init__()
+        channels=[32,64,64]
+        kernel_sizes=[8,4,3]
+        strides=[4,3,1]
+        paddings=[0,0,1]
 
-      self.conv = Conv2dHeadModel(
-        image_shape=image_shape,
-        channels=channels,
-        kernel_sizes=kernel_sizes,
-        strides=strides,
-        paddings=paddings,
-        use_maxpool=use_maxpool,
-        hidden_sizes=hidden_sizes,
-      )
+        self.conv = Conv2dHeadModel(
+          image_shape=image_shape,
+          channels=channels,
+          kernel_sizes=kernel_sizes,
+          strides=strides,
+          paddings=paddings,
+          use_maxpool=use_maxpool,
+          hidden_sizes=hidden_sizes,
+        )
 
-      self.lstm = torch.nn.LSTM(self.conv.output_size + output_size + 1, lstm_size)
-      self.pi = torch.nn.Linear(lstm_size, output_size)
-      self.value = torch.nn.Linear(lstm_size, 1)
+        self.lstm = torch.nn.LSTM(self.conv.output_size + output_size + 1, lstm_size)
+        self.pi = torch.nn.Linear(lstm_size, output_size)
+        self.value = torch.nn.Linear(lstm_size, 1)
   
-  def forward(self, image, prev_action=None, prev_reward=None, init_rnn_state=None):
-      img = image.type(torch.float)
-      img = img.mul_(1. / 255)
+    def forward(self, image, prev_action=None, prev_reward=None, init_rnn_state=None):
+        img = image.type(torch.float)
+        img = img.mul_(1. / 255)
 
-      lead_dim, T, B, img_shape = infer_leading_dims(img, 3)
+        lead_dim, T, B, img_shape = infer_leading_dims(img, 3)
 
-      img = img.view(T * B, *img_shape)
-      fc_out = self.conv(img.view(T * B, *img_shape))
-      lstm_input = torch.cat([
-          fc_out.view(T, B, -1),
-          prev_action.view(T, B, -1),  # Assumed onehot.
-          prev_reward.view(T, B, 1),
-          ], dim=2)
-      
-      init_rnn_state = None if init_rnn_state is None else tuple(init_rnn_state)
-      lstm_out, (hn, cn) = self.lstm(lstm_input, init_rnn_state)
-      pi = F.softmax(self.pi(lstm_out.view(T * B, -1)), dim=-1)
-      v = self.value(lstm_out.view(T * B, -1)).squeeze(-1)
+        img = img.view(T * B, *img_shape)
+        fc_out = self.conv(img.view(T * B, *img_shape))
+        lstm_input = torch.cat([
+            fc_out.view(T, B, -1),
+            prev_action.view(T, B, -1),  # Assumed onehot.
+            prev_reward.view(T, B, 1),
+            ], dim=2)
 
-      # Restore leading dimensions: [T,B], [B], or [], as input.
-      pi, v = restore_leading_dims((pi, v), lead_dim, T, B)
-      # Model should always leave B-dimension in rnn state: [N,B,H].
-      next_rnn_state = RnnState(h=hn, c=cn)
+        init_rnn_state = None if init_rnn_state is None else tuple(init_rnn_state)
+        lstm_out, (hn, cn) = self.lstm(lstm_input, init_rnn_state)
+        pi = F.softmax(self.pi(lstm_out.view(T * B, -1)), dim=-1)
+        v = self.value(lstm_out.view(T * B, -1)).squeeze(-1)
 
-      return pi, v, next_rnn_state
+        # Restore leading dimensions: [T,B], [B], or [], as input.
+        pi, v = restore_leading_dims((pi, v), lead_dim, T, B)
+        # Model should always leave B-dimension in rnn state: [N,B,H].
+        next_rnn_state = RnnState(h=hn, c=cn)
+
+        return pi, v, next_rnn_state
         
