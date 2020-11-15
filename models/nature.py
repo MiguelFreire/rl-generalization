@@ -5,6 +5,7 @@ from models.conv2d import Conv2dHeadModel
 from models.cutout import random_cutout_color
 from models.layer_transform import ColorJitterLayer
 from models.rand_network import random_convolution
+from rlpyt.utils.collections import namedarraytuple
 import torch.nn.functional as F
 import numpy as np
 import math
@@ -140,7 +141,7 @@ class NatureLSTMModel(torch.nn.Module):
           kernel_sizes=kernel_sizes,
           strides=strides,
           paddings=paddings,
-          use_maxpool=use_maxpool,
+          use_maxpool=False,
           hidden_sizes=hidden_sizes,
         )
 

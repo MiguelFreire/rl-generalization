@@ -1,7 +1,7 @@
 import torch
 import os
 import wandb
-from agents.nature import OriginalNatureAgent
+from agents.nature import OriginalNatureAgent, NatureRecurrentAgent
 from agents.impala import ImpalaAgent
 from experiments.experiment import make_env
 from rlpyt.utils.prog_bar import ProgBarCounter
@@ -23,13 +23,18 @@ def evaluate_in_training(agent, num_levels=500, seed=42069, env_name='procgen'):
     env = make_env(num_levels=1, start_level=0, seed=seed, env=env_name)
     levels = [False for i in range(num_levels)]
 
-    prev_action = torch.tensor(0.0, dtype=torch.float) #None
-    prev_reward = torch.tensor(0.0, dtype=torch.float) #None
+    
     for j in range(num_levels):
+        #Init level reset variables
         env = make_env(num_levels=1, start_level=j, seed=seed, env=env_name)
         done = False
+        
         obs, _, _, info = env.step(-1)
         obs = torch.from_numpy(obs).unsqueeze(0)
+        
+        prev_action = torch.tensor(0.0, dtype=torch.float) #None
+        prev_reward = torch.tensor(0.0, dtype=torch.float) #None
+        
         while True:
           if done:
             if info.prev_level_complete:
@@ -38,6 +43,8 @@ def evaluate_in_training(agent, num_levels=500, seed=42069, env_name='procgen'):
           step = agent.step(obs, prev_action, prev_reward)
           obs, rewards, done, info = env.step(step.action)
           obs = torch.from_numpy(obs).unsqueeze(0)
+          prev_action = step.action.clone()
+          prev_reward = torch.tensor([rewards], dtype=torch.float)
     
     return calculateWinRate(levels)
 
@@ -46,13 +53,16 @@ def evaluate_in_testing(agent, num_levels=5000, start_level=400000, seed=42069, 
     env = make_env(num_levels=1, start_level=start_level, seed=seed, env=env_name)
     levels = [False for i in range(num_levels)]
 
-    prev_action = torch.tensor(0.0, dtype=torch.float) #None
-    prev_reward = torch.tensor(0.0, dtype=torch.float) #None
+    
     for j in range(num_levels):
         env = make_env(num_levels=1, start_level=start_level+j, seed=seed, env=env_name)
         done = False
+        
         obs, _, _, info = env.step(-1)
         obs = torch.from_numpy(obs).unsqueeze(0)
+        
+        prev_action = torch.tensor(0.0, dtype=torch.float) #None
+        prev_reward = torch.tensor(0.0, dtype=torch.float) #None
 
         while True:
           if done:
@@ -61,7 +71,10 @@ def evaluate_in_testing(agent, num_levels=5000, start_level=400000, seed=42069, 
             break
           step = agent.step(obs, prev_action, prev_reward)
           obs, rewards, done, info = env.step(step.action)
+          # Next stat
           obs = torch.from_numpy(obs).unsqueeze(0)
+          prev_action = step.action.clone()
+          prev_reward = torch.tensor([rewards], dtype=torch.float)
 
     return calculateWinRate(levels)
   
@@ -108,11 +121,20 @@ def evaluate_generalization(m):
         "out_channels": [16, 32, 32],
         "hidden_size": 512,
     }
+    
+    lstm_kwargs = {
+        "hidden_sizes": [512],
+        "lstm_size": 256,
+    }
 
     if impala:
         agent = ImpalaAgent(initial_model_state_dict=saved_params, model_kwargs=impala_kwargs)
     else:
-        agent = OriginalNatureAgent(initial_model_state_dict=saved_params, model_kwargs=model_kwargs)
+        if arch === 'lstm':
+          agent = NatureRecurrentAgent(initial_model_state_dict=saved_params, model_kwargs=model_kwargs)
+        else:
+          agent = OriginalNatureAgent(initial_model_state_dict=saved_params, model_kwargs=model_kwargs)
+        
     num_levels = m['num_levels']
 
     dummy_env = make_env(num_levels=1, start_level=0, env=env)

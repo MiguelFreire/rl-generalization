@@ -48,6 +48,6 @@ class SelfAttentionNatureAgent(AtariMixin, CategoricalPgAgent):
       def __init__(self, **kwargs):
         super().__init__(ModelCls=NatureSelfAttention, **kwargs)
 
-class NatureRecurrentAgent(AtariMixin, RecurrentCategorialPgAgent):
+class NatureRecurrentAgent(AtariMixin, RecurrentCategoricalPgAgent):
     def __init__(self, **kwargs):
       super().__init__(ModelCls=NatureLSTMModel, **kwargs)
