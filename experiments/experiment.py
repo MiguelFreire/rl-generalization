@@ -5,7 +5,7 @@ from rlpyt.utils.launching.affinity import affinity_from_code
 from rlpyt.samplers.parallel.gpu.sampler import GpuSampler
 from rlpyt.runners.minibatch_rl import MinibatchRl
 from rlpyt.utils.logging.context import logger_context
-from agents.nature import OriginalNatureAgent, AttentionNatureAgent, SelfAttentionNatureAgent
+from agents.nature import OriginalNatureAgent, AttentionNatureAgent, SelfAttentionNatureAgent, NatureRecurrentAgent
 from rlpyt.samplers.parallel.gpu.collectors import GpuResetCollector
 from agents.impala import ImpalaAgent
 from rlpyt.algos.pg.ppo import PPO
@@ -86,6 +86,8 @@ class Experiment:
         
         if config["arch"] == 'impala':
             agent = ImpalaAgent(model_kwargs={"in_channels": [3,16,32], "out_channels": [16,32,32], "hidden_size": 256})
+        elif config["arch"] == 'lstm':
+            agent = NatureRecurrentAgent(model_kwargs={"hidden_sizes": [512], "lstm_size": 256})
         else:
             agent = OriginalNatureAgent(model_kwargs={"batchNorm": config["batchNorm"], "dropout": config["dropout"], "augment_obs": config["augment_obs"], "use_maxpool": config["maxpool"], "hidden_sizes": config["hidden_sizes"], "arch": config["arch"]})
         

@@ -1,6 +1,6 @@
 import torch
-from rlpyt.agents.pg.categorical import CategoricalPgAgent
-from models.nature import NatureCNNModel
+from rlpyt.agents.pg.categorical import (CategoricalPgAgent, RecurrentCategoricalPgAgent)
+from models.nature import (NatureCNNModel, NatureLSTMModel)
 from models.nature_attention import NatureAttention, NatureSelfAttention
 from rlpyt.agents.pg.atari import AtariMixin
 from rlpyt.utils.buffer import buffer_to, buffer_func, buffer_method
@@ -48,4 +48,6 @@ class SelfAttentionNatureAgent(AtariMixin, CategoricalPgAgent):
       def __init__(self, **kwargs):
         super().__init__(ModelCls=NatureSelfAttention, **kwargs)
 
-        
+class NatureRecurrentAgent(AtariMixin, RecurrentCategorialPgAgent):
+    def __init__(self, **kwargs):
+      super().__init__(ModelCls=NatureLSTMModel, **kwargs)
