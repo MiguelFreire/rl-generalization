@@ -53,8 +53,8 @@ class NatureCNNModel(torch.nn.Module):
         elif arch == "b":
           channels=[16,32,64]
           kernel_sizes=[4,3,3]
-          strides=[2,1,1]
-          paddings=[0,1,1]
+          strides=[2,2,2]
+          paddings=[0,0,1]
           
         resnet = arch=="resnet" or arch=="resnet2"
 
