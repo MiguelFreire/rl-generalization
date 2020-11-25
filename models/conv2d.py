@@ -80,14 +80,14 @@ class Conv2dResModel(torch.nn.Module):
           max_pool = torch.nn.MaxPool2d(2)
           seq.append(max_pool)
         
-        resBlock = ResidualBlock(in_channels=16, channels=32, layers=layers, kernel_size=3, stride=1, padding=0, useConv1x1=True)
-        resBlock2 = ResidualBlock(in_channels=32, channels=64, layers=layers, kernel_size=3, stride=1, padding=1)
+        resBlock = ResidualBlock(in_channels=16, channels=32, layers=layers, kernel_size=3, stride=1, padding=1, useConv1x1=True)
+        resBlock2 = ResidualBlock(in_channels=32, channels=64, layers=layers, kernel_size=3, stride=1, padding=1, useConv1x1=True)
         
         seq.append(resBlock)
         seq.append(torch.nn.MaxPool2d(2))
         seq.append(resBlock2)
         seq.append(torch.nn.MaxPool2d(2))
-        
+        seq.append(torch.nn.ReLU())
         self.conv = torch.nn.Sequential(*seq)
 
     def forward(self, x):
