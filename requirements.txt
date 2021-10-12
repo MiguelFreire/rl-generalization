@@ -2,7 +2,7 @@ argparse==1.4.0
 gym==0.15.3
 numpy==1.17.3
 nvidia-ml-py3==7.352.0
-opencv-python==4.1.1.26
+opencv-python==4.2.0.32
 pandas==0.24.2
 procgen==0.9.4
 -e git+https://github.com/astooke/rlpyt.git@668290d1ca94e9d193388a599d4f719bc3a23fba#egg=rlpyt
