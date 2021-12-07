@@ -23,6 +23,7 @@ if __name__ == "__main__":
   parser.add_argument('--max_pooling', type=bool, default=False)
   parser.add_argument('--arch', type=str, default="original")
   parser.add_argument('--env', type=str, default="coinrun")
+  parser.add_argument('--gpu', type=int, default=0)
   
   args = parser.parse_args()
   experiment = BaseExperimentNature(**vars(args))

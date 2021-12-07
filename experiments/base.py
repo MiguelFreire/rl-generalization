@@ -1,7 +1,7 @@
 from experiments.experiment import Experiment
 
 class BaseExperimentNature(Experiment):
-    def __init__(self, name="CoinRunNatureLevels-default", num_levels=500, batchNorm=False, dropout=0.0, l2_penalty=0, entropy_bonus = 0.01, augment_obs=None, attention=None, num_steps=25_000_000, hidden_sizes=[512], max_pooling=False, arch="original", env="coinrun"):
+    def __init__(self, name="CoinRunNatureLevels-default", num_levels=500, batchNorm=False, dropout=0.0, l2_penalty=0, entropy_bonus = 0.01, augment_obs=None, attention=None, num_steps=25_000_000, hidden_sizes=[512], max_pooling=False, arch="original", env="coinrun", gpu=0):
       self.num_levels = num_levels
       self.batchNorm = batchNorm
       self.dropout = dropout
@@ -15,6 +15,7 @@ class BaseExperimentNature(Experiment):
       self.hidden_sizes = hidden_sizes
       self.arch = arch
       self.env = env
+      self.gpu = gpu
     def getConfig(self):
         return {
             "name": self.name,
@@ -39,6 +40,7 @@ class BaseExperimentNature(Experiment):
             "maxpool": self.max_pooling,
             "hidden_sizes": self.hidden_sizes,
             "arch": self.arch,
-            "env": self.env 
+            "env": self.env,
+            "gpu": self.gpu,
         }
 

@@ -91,7 +91,7 @@ class Experiment:
         else:
             agent = OriginalNatureAgent(model_kwargs={"batchNorm": config["batchNorm"], "dropout": config["dropout"], "augment_obs": config["augment_obs"], "use_maxpool": config["maxpool"], "hidden_sizes": config["hidden_sizes"], "arch": config["arch"]})
         
-        affinity = dict(cuda_idx=0, workers_cpus=list(range(8)))
+        affinity = dict(cuda_idx=config['gpu'])
 
         runner = MinibatchRl(
                   algo=algo,
